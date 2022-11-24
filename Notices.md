@@ -22,6 +22,14 @@ Specification version: 0.1.0 or later
 
 ---------------------------------------------------------------------------------
 
+Licensee’s name: Juan Caballero
+
+Authorized individual and system identifier: bumblefudge
+
+Specification version: 0.1.0 or later
+
+---------------------------------------------------------------------------------
+
 ## Withdrawals
 
 Name of party withdrawing:
