@@ -4,5 +4,6 @@
     "bumblefudge",
     "oed"
   ],
-  "recheckComment": "RecheckCLAplz"
+  "message": "We require contributors to sign our Contributor License Agreement, and we don\'t have you on file. In order for us to review and merge your code, either [PR in your signature like so](https://github.com/ChainAgnostic/varsig/pull/2/files) if you have no other disclosures to make or reach out to one more of the codeowners (@bumblefudge @expede @oed) to get yourself added manually.",
+  "recheckComment": "Thank you for complying with our IP regime! We appreciate the collaboration."
 }
