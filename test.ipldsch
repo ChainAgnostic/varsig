@@ -1,0 +1,4 @@
+type HelloWorld {
+  test Any
+  test2 Integer (implicit 0)
+}
