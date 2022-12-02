@@ -148,7 +148,7 @@ The hash length used by the signature. This is the second segment of a [multihas
 
 The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used.
 
-For example: `0x00` for raw bytes (no special encoding), `0x0129` for DAG-JSON, and `0x70` for DAG-PB.
+For example: `0x55` for raw bytes (no special encoding), `0x0129` for DAG-JSON, and `0x70` for DAG-PB.
 
 ### 3.1.6 Raw Signature
 
