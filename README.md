@@ -49,10 +49,13 @@ const payload = {"hello": "world", "count": 42}.toString()
 }
 ```
 
+Directly signing over IPLD introduces new problems: foced encoding and canonicalization attacks. Varsig aims to aleviate both.
 
-Directly signing over IPLD introduces new problems: loss of metadata and canonicalization attacks. Varsig aims to aleviate both.
+## 1.1 Forced Encoding
 
-## 1.1 Loss of Metadata
+Data must first be rendered to binary before it is signed. This means chosing imposing encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a CID. In IPFS, CIDs imply a link, which can have impliciations for network access and storage. Futher, generating a CID means producing a hash, which is then potentially rehashed by the cryptographic signature library.
+
+To remedy this, Varsig includes the encoding information used in production of the signature.
 
 ## 1.2 Canonnicalization Attacks
 
@@ -71,7 +74,7 @@ Since IPLD is deterministically encoded, it can be tempting to not sign the IPLD
 }
 ```
 
-However, since it requires canonicalization before checking the signature, it is very easy to miss extra fields that have been added to the payload, and that were lost in canonicalization. Since different parsers _________. From [RFC8259](https://www.rfc-editor.org/rfc/rfc8259#page-10):
+This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers are known to handle duplicate entires differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additioanl fields have been added to the payload which will be parsed by the application. From [RFC8259](https://www.rfc-editor.org/rfc/rfc8259#page-10):
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
 
@@ -90,41 +93,65 @@ However, since it requires canonicalization before checking the signature, it is
 
 In the above exmaple, the canonicalization step MAY lead to the signature validating, but the client parsing the `role: "admin"` field instead.
 
-### 1.2.1 Remedies
+# 2 Safety
 
-Since canonicalizable data MUST be round-trippable by definition, one solution is to round-trip the data at the application layer: encode the data to binary, validate the signature, decode the validated binary, and use that at the application layer. This is a very manual process, and may require replacing existing in-memory data, which can have perfromance and memory lifetime implications.
+Data that has already been parsed to an in-memory IPLD representation can be canonically encoded to a trivially: it has already been through a [parser / validator](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/).
 
-Another approach is to sign CIDs. Being a hash, it is impractical to tamper with CIDs. However, passing CIDs around is often inconvenient, as it may require an additional network round trip and mixes concerns of signatures with data layout. If the payload is ever inlined to replace the CID, the earlier canonicalization concerns recur. In terms of data overhead, this is the same as including the inlined HMAC in the payload (below).
+Data purporting to conform to an IPLD encoding (such as [DAG-JSON](https://ipld.io/specs/codecs/dag-json/spec/)) MUST be validated prior to signature verification. This can be as simple as round-trip decodend/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match. From the IPLD spec:
 
-The solutiom in Varsig is to include an integrity hash with the signature. This increases the signature length; if a short signature scheme like EdDSA is used, this can be a substancial by percentage.
+> [Implementers] may provide an opt-in for systems where round-trip determinism is a desireable feature and backward compatibility with old, non-strict data is unnecessary.
 
-# 2 Integrity Hash
+As it is critical for signatures guard againat various attacks, the assumptions around canonical encoding MUST be enforced.
 
-As 
+## 2.1 Signing CIDs
 
-## 2.1 Raw (Noncanonicalized) Data
+If this is to high a bar for a particular application, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
 
-If raw data is used, then an integrity hash is not required
+## 2.2 Raw (Noncanonicalized) Data
+
+Canonicalization is not required if data is encoded as raw bytes (multicodec `0x00`). The exact bytes are already present, and MUST not be changed.
+
+# 3 Varsig Format
+
+A varsig is a bytestring that includes the following information:
+
+| Segment Name              | Type     | Description                                     | Required |
+|---------------------------|----------|-------------------------------------------------|----------|
+| Varsig Prefix             | `0xD000` | The multicodec varsig prefix                    | Yes      |
+| Key Prefix                | `Varint` | The multicodec prefix for the public key type   | Yes      |
+| Hash Prefix               | `Varint` | The multicodec prefix for the hash algorithm    | Yes      |
+| Hash Length               | `Varint` | The hash length                                 | Yes      |
+| Content Multicodec Prefix | `Varint` | The IPLD encoding uses to canonicalize the data | Yes      |
+| Raw Signature             | `Varint` | The raw signature                               | Yes      |
+  
+## 3.1 Segments
+
+### 3.1.1 Varsig Prefix
+
+The varsig prefix MUST be `0xD000`.
+
+### 3.1.2 Key Prefix
+
+
+
+### 3.1.3 Varsig Prefix
+
+### 3.1.4 Varsig Prefix
+
+### 3.1.5 Varsig Prefix
 
 
 
 
 
 
-FIXME if an EIP-191 or FIDO encolope is used, it is strongly recommended that the content be a CID.
-
-# 2 Format
-
-
-Signing binary data does not require including a separate hash, because it's not canonicailzated
-
-## 2.1 Byte Segments
+## 3.2 Byte Segments
 
 ```xml
-<multibase_prefix><varint 0xd0><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><varint raw_signature>
+<varint 0xD000><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><varint raw_signature>
 ```
 
-## 2.2 IPLD Schema
+## 3.3 IPLD Schema
 
 ``` ipldsch
 type TaggedVarsig union {
@@ -134,14 +161,15 @@ type TaggedVarsig union {
 type Varsig struct {
   -- Signature type
   keyPrefix    Multicodec.PublicKey -- Public key type for signature 
+  
+  -- Hash
   hashPrefix   Multicodec.Multihash -- Hash prefix
   digestLength Integer
   
-  -- Content Metadata
+  -- Payload Encoding
   contentEnc Multicodec -- Content multicodec prefix
 
   -- Crypto
-  rawHash    Bytes -- Integrity hash, MAY be 0 if contentEnc is 0x00
   rawSig     Bytes -- Raw signature bytes
 } representation stringjoin {
   join ""
@@ -167,3 +195,11 @@ FIXME put EIP-191 and EIP-712 paylaods on the multicodec table diretcly
 # 8 Acknowledgements
 
 Many thanks to [Quinn Wilton](https://github.com/QuinnWilton) for her many recommendations and stories of times she's used JSON signing exploits in [CTF](https://en.wikipedia.org/wiki/Capture_the_flag_(cybersecurity)) competitons.
+
+
+
+
+
+
+
+FIXME if an EIP-191 or FIDO encolope is used, it is strongly recommended that the content be a CID.
