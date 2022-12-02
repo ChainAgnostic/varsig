@@ -157,7 +157,7 @@ The raw signature bytes
 ## 3.2 Byte Segments
 
 ```xml
-<varint 0xD000><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><varint raw_signature>
+<bytes 0xd000><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><varint raw_signature>
 ```
 
 ## 3.3 IPLD Schema
