@@ -11,13 +11,13 @@
 * [Joel Thorstensson](https://github.com/oed), [3Box Labs](https://3boxlabs.com/)
 * [Brooklyn Zelenka](https://github.com/expede/), [Fission](https://fission.codes/)
 
-# 0 Abstract
-
-Varsig is a [multiformat](https://multiformats.io) for describing signatures over IPLD data and other canonicalized formats.
-
 ## Language
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+
+# 0 Abstract
+
+Varsig is a [multiformat](https://multiformats.io) for describing signatures over IPLD data and other canonicalized formats.
 
 # 1 Introduction
 
@@ -26,60 +26,34 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 # 2 Format
 
 ```
-<varint sig alg><varint multihash integrity hash><enc varint><integ varint><rawSig varint>
+0xd0<varint sigAlg multicodec_key_prefix><varint hashAlg multicodec_hash_prefix><varint contentEnc multicodec_prefix><varint rawSig bytes>
 ```
 
 ``` ipldsch
-type Varsig struct {
-  header        "0xd0"
-  SigComponents Bytes
-} representation stringjoin
-
-type SigComponents struct {
-  sigAlg        SigAlg     -- Signature algorithm bytesprefix
-  enc           Multicodec -- Payload encoding
-  hash nullable Multihash  -- Integrity Hash varint
-  rawSig        Bytes      -- Raw signature bytes
-} representation stringjoin
-
-type SigAlg union {
-  -- Algorithms here are expected to be valid "varsig" multiformat codes.
-  | NonStandard "0x00"
-  | ES256K      "0xe7" -- secp256k1
-  | BLS12381G1  "0xea" -- NB: G1 is a signature for BLS-12381 G2
-  | BLS12381G2  "0xeb" -- NB: G2 is a signature for BLS-12381 G1
-  | EdDSA       "0xed"
-  | ES256       "0x1200"
-  | ES384       "0x1201"
-  | ES512       "0x1202"
-  | RS256       "0x1205"
+type TaggedVarsig union {
+  | Varsig "0xd0"
 } representation bytesprefix
 
-type Canonicalization union {
-  | Raw    "0x00"
-  | DAG_JSON
-  | DAG_CBOR
-  | DAG_PB
-  | EIP191 "0xE191"
-  | EIP712 "0xE712"
-}
-
-type EIP191v1 struct {
-  "EIP"
-
-}
-
-type EIP191v2
-
-
-0x19 <0x00> <intended validator address> <data to sign>
-0x19 <0x45 (E)> <thereum Signed Message:\n" + len(message)> <data to sign>
-
-type EIP712 struct {
-
+type Varsig struct {
+  sigAlg         Multicodec.Key       -- Public key type for signature 
+  hashAlg        Multicodec.Multihash -- Hash function used by signature
+  contentEnc     Multicodec           -- Payload encoding
+  rawSig         Bytes                -- Raw signature bytes
+} representation stringjoin {
+  join ""
 }
 ```
+
+* Signatures for IPLD SHOULD be over the CID
+* Signing raw data for a non-IPLD use case is harder:
+  * Need to sign the non-ipld raw bytes
+  * Integrity hash helps
+  * MUST check the 
+  
+FIXME put EIP-191 and EIP-712 paylaods on the multicodec table diretcly
 
 # 7 Prior Art
 
 # 8 Acknowledgements
+
+Many thanks to [Quinn Wilton](https://github.com/QuinnWilton) for her many recommendations and stories of times she's used JSON signing exploits in [CTF](https://en.wikipedia.org/wiki/Capture_the_flag_(cybersecurity)) competitons.
