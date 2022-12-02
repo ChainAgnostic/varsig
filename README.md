@@ -107,7 +107,7 @@ Rather than validating the inline IPLD, replacing the data with a CID link to th
 
 ## 2.2 Raw (Noncanonicalized) Data
 
-Canonicalization is not required if data is encoded as raw bytes (multicodec `0x00`). The exact bytes are already present, and MUST not be changed.
+Canonicalization is not required if data is encoded as raw bytes (multicodec `0x55`). The exact bytes are already present, and MUST not be changed.
 
 # 3 Varsig Format
 
