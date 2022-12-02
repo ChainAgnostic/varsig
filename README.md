@@ -53,7 +53,7 @@ To remedy this, Varsig includes the encoding information used in production of t
 
 ## 1.2 Canonicalization Attacks
 
-Since IPLD is deterministically encoded, it can be tempting to not sign the IPLD data directly, and pass the signature around in the same payload rather than wrapping it. Since the original payload can be rederived from the output, this seems like a clean option:
+Since IPLD is deterministically encoded, it can be tempting to rely on canonicalization at validation time, rather than rendering the IPLD to inline bytes or a CID and signing that. Since the original payload can be rederived from the output, this seems like a clean option:
 
 ``` js
 // DAG-JSON
