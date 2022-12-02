@@ -115,7 +115,7 @@ A varsig is a bytestring that includes the following information:
 
 | Segment Name              | Type     | Description                                     | Required |
 |---------------------------|----------|-------------------------------------------------|----------|
-| Varsig Prefix             | `0xD000` | The multicodec varsig prefix                    | Yes      |
+| Varsig Prefix             | `0xd000` | The multicodec varsig prefix                    | Yes      |
 | Public Key Prefix         | `Varint` | The multicodec prefix for the public key type   | Yes      |
 | Hash Prefix               | `Varint` | The multicodec prefix for the hash algorithm    | Yes      |
 | Hash Length               | `Varint` | The hash length                                 | Yes      |
@@ -126,19 +126,19 @@ A varsig is a bytestring that includes the following information:
 
 ### 3.1.1 Varsig Prefix
 
-The varsig prefix MUST be `0xD000`.
+The varsig prefix MUST be `0xd000`.
 
 ### 3.1.2 Public Key Prefix
 
 The [multicodec](https://github.com/multiformats/multicodec) prefix for the public key type associated with the signature.
 
-For example: `0xE7` for secp256k1, or `0x1205` for RSA.
+For example: `0xe7` for secp256k1, or `0x1205` for RSA.
 
 ### 3.1.3 Hash Prefix
 
 The [multicodec](https://github.com/multiformats/multicodec) hash prefix used by the signature. This is the first segment of a [multihash](https://github.com/multiformats/multihash).
 
-For example: `0x16` for SHA3-256, or `0x1E` for BLAKE3
+For example: `0x16` for SHA3-256, or `0x1e` for BLAKE3
 
 ### 3.1.4 Hash Length
 
@@ -164,7 +164,7 @@ The raw signature bytes
 
 ``` ipldsch
 type TaggedVarsig union {
-  | Varsig "d0"
+  | Varsig "d000
 } representation bytesprefix
 
 type Varsig struct {
