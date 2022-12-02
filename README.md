@@ -103,7 +103,7 @@ As it is critical for signatures guard against various attacks, the assumptions 
 
 ## 2.1 Signing CIDs
 
-If this is to high a bar for a particular application, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
+Rather than validating the IPLD, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
 
 ## 2.2 Raw (Noncanonicalized) Data
 
