@@ -33,7 +33,7 @@ Common formats such as JWT use encoding (e.g. base64) and text separators (e.g. 
 
 ``` js
 // JWT
-eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsInVjdiI6IjAuOC4xIn0.eyJhdWQiOiJkaWQ6a2V5Ono2TWtyNWFlZmluMUR6akc3TUJKM25zRkNzbnZIS0V2VGIyQzRZQUp3Ynh0MWpGUyIsImF0dCI6W3sid2l0aCI6eyJzY2hlbWUiOiJ3bmZzIiwiaGllclBhcnQiOiIvL2RlbW91c2VyLmZpc3Npb24ubmFtZS9wdWJsaWMvcGhvdG9zLyJ9LCJjYW4iOnsibmFtZXNwYWNlIjoid25mcyIsInNlZ21lbnRzIjpbIk9WRVJXUklURSJdfX1dLCJleHAiOjkyNTY5Mzk1MDUsImlzcyI6ImRpZDprZXk6ejZNa2tXb3E2UzN0cVJXcWtSbnlNZFhmcnM1NDlFZnU2cUN1NHVqRGZNY2pGUEpSIiwicHJmIjpbXX0.SjKaHG_2Ce0pjuNF5OD-b6joN1SIJMpjKjjl4JE61_upOrtvKoDQSxZ7WeYVAIATDl8EmcOKj9OqOSw0Vg8VCA
+"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsInVjdiI6IjAuOC4xIn0.eyJhdWQiOiJkaWQ6a2V5Ono2TWtyNWFlZmluMUR6akc3TUJKM25zRkNzbnZIS0V2VGIyQzRZQUp3Ynh0MWpGUyIsImF0dCI6W3sid2l0aCI6eyJzY2hlbWUiOiJ3bmZzIiwiaGllclBhcnQiOiIvL2RlbW91c2VyLmZpc3Npb24ubmFtZS9wdWJsaWMvcGhvdG9zLyJ9LCJjYW4iOnsibmFtZXNwYWNlIjoid25mcyIsInNlZ21lbnRzIjpbIk9WRVJXUklURSJdfX1dLCJleHAiOjkyNTY5Mzk1MDUsImlzcyI6ImRpZDprZXk6ejZNa2tXb3E2UzN0cVJXcWtSbnlNZFhmcnM1NDlFZnU2cUN1NHVqRGZNY2pGUEpSIiwicHJmIjpbXX0.SjKaHG_2Ce0pjuNF5OD-b6joN1SIJMpjKjjl4JE61_upOrtvKoDQSxZ7WeYVAIATDl8EmcOKj9OqOSw0Vg8VCA"
 ```
 
 Many encodings are less efficient and inconvenient, so others use canonicalization and a tag. This can be 
@@ -74,9 +74,11 @@ Since IPLD is deterministically encoded, it can be tempting to not sign the IPLD
 }
 ```
 
-This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers are known to handle duplicate entires differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additioanl fields have been added to the payload which will be parsed by the application. From [RFC8259](https://www.rfc-editor.org/rfc/rfc8259#page-10):
+This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers are known to handle duplicate entires differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additioanl fields have been added to the payload which will be parsed by the application.
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
+>
+> — [RFC8259](https://www.rfc-editor.org/rfc/rfc8259#page-10)
 
 ``` json
 {
@@ -97,9 +99,11 @@ In the above exmaple, the canonicalization step MAY lead to the signature valida
 
 Data that has already been parsed to an in-memory IPLD representation can be canonically encoded to a trivially: it has already been through a [parser / validator](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/).
 
-Data purporting to conform to an IPLD encoding (such as [DAG-JSON](https://ipld.io/specs/codecs/dag-json/spec/)) MUST be validated prior to signature verification. This can be as simple as round-trip decodend/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match. From the IPLD spec:
+Data purporting to conform to an IPLD encoding (such as [DAG-JSON](https://ipld.io/specs/codecs/dag-json/spec/)) MUST be validated prior to signature verification. This can be as simple as round-trip decodend/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match. 
 
 > [Implementers] may provide an opt-in for systems where round-trip determinism is a desireable feature and backward compatibility with old, non-strict data is unnecessary.
+>
+> — [DAG-JSON Spec](https://ipld.io/specs/codecs/dag-json/spec/)
 
 As it is critical for signatures guard againat various attacks, the assumptions around canonical encoding MUST be enforced.
 
@@ -118,7 +122,7 @@ A varsig is a bytestring that includes the following information:
 | Segment Name              | Type     | Description                                     | Required |
 |---------------------------|----------|-------------------------------------------------|----------|
 | Varsig Prefix             | `0xD000` | The multicodec varsig prefix                    | Yes      |
-| Key Prefix                | `Varint` | The multicodec prefix for the public key type   | Yes      |
+| Public Key Prefix         | `Varint` | The multicodec prefix for the public key type   | Yes      |
 | Hash Prefix               | `Varint` | The multicodec prefix for the hash algorithm    | Yes      |
 | Hash Length               | `Varint` | The hash length                                 | Yes      |
 | Content Multicodec Prefix | `Varint` | The IPLD encoding uses to canonicalize the data | Yes      |
@@ -130,20 +134,31 @@ A varsig is a bytestring that includes the following information:
 
 The varsig prefix MUST be `0xD000`.
 
-### 3.1.2 Key Prefix
+### 3.1.2 Public Key Prefix
 
+The [multicodec](https://github.com/multiformats/multicodec) prefix for the public key type associated with the signature.
 
+For example: `0xE7` for secp256k1, or `0x1205` for RSA.
 
-### 3.1.3 Varsig Prefix
+### 3.1.3 Hash Prefix
 
-### 3.1.4 Varsig Prefix
+The [multicodec](https://github.com/multiformats/multicodec) hash prefix used by the signature. This is the first segment of a [multihash](https://github.com/multiformats/multihash).
 
-### 3.1.5 Varsig Prefix
+For example: `0x16` for SHA3-256, or `0x1E` for BLAKE3
 
+### 3.1.4 Hash Length
 
+The hash length used by the signature. This is the second segment of a [multihash](https://github.com/multiformats/multihash).
 
+### 3.1.5 Content Multicodec Prefix
 
+The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used.
 
+For example: `0x00` for raw bytes (no special encoding), `0x0129` for DAG-IPLD, and `0x70` for DAG-PB.
+
+### 3.1.6 Raw Signture
+
+The raw signature bytes
 
 ## 3.2 Byte Segments
 
@@ -176,14 +191,6 @@ type Varsig struct {
 }
 ```
 
-* Signatures for IPLD SHOULD be over the CID
-* Signing raw data for a non-IPLD use case is harder:
-  * Need to sign the non-ipld raw bytes
-  * Integrity hash helps
-  * MUST check the 
-  
-FIXME put EIP-191 and EIP-712 paylaods on the multicodec table diretcly
-
 # 7 Prior Art
 
 # 8 Further Reading
@@ -195,11 +202,3 @@ FIXME put EIP-191 and EIP-712 paylaods on the multicodec table diretcly
 # 8 Acknowledgements
 
 Many thanks to [Quinn Wilton](https://github.com/QuinnWilton) for her many recommendations and stories of times she's used JSON signing exploits in [CTF](https://en.wikipedia.org/wiki/Capture_the_flag_(cybersecurity)) competitons.
-
-
-
-
-
-
-
-FIXME if an EIP-191 or FIDO encolope is used, it is strongly recommended that the content be a CID.
