@@ -164,7 +164,7 @@ The raw signature bytes
 
 ``` ipldsch
 type TaggedVarsig union {
-  | Varsig "d000
+  | Varsig "d000"
 } representation bytesprefix
 
 type Varsig struct {
