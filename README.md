@@ -47,7 +47,7 @@ Directly signing over canonicalized introduces new problems: forced encoding and
 
 ## 1.1 Forced Encoding
 
-Data must first be rendered to binary before it is signed. This means choosing imposing encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a CID. In IPFS, CIDs imply a link, which can have implications for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed by the cryptographic signature library.
+Data must first be rendered to binary before it is signed. This means imposing an encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a CID. In IPFS, CIDs imply a link, which can have implications for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed by the cryptographic signature library.
 
 To remedy this, Varsig includes the encoding information used in production of the signature.
 
