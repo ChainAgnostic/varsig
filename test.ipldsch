@@ -1,4 +1,0 @@
-type HelloWorld struct {
-  test Any
-  test2 Integer (implicit 0)
-}
