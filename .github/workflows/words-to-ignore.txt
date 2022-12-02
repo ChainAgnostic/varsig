@@ -1,7 +1,6 @@
-CIDs
-desireable
-CTF
 Acknowledgements
+CIDs
+CTF
 Canonicalization
 Canonicalized
 DAG-CBOR
@@ -43,10 +42,12 @@ bytesprefix
 bytestring
 canonicalization
 canonicalize
+canonicalized
 codec
 conformant
 cryptographic
 delimeters
+desireable
 dholms
 encodings
 expede
@@ -58,6 +59,7 @@ multihash
 namespaced
 oed
 pre-signature
+rederived
 requestor's
 responder
 secp
