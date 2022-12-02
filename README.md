@@ -168,18 +168,11 @@ type TaggedVarsig union {
 } representation bytesprefix
 
 type Varsig struct {
-  -- Signature type
-  keyPrefix    Multicodec.PublicKey -- Public key type for signature 
-  
-  -- Hash
-  hashPrefix   Multicodec.Multihash -- Hash prefix
+  keyPrefix Multicodec.PublicKey
+  hashPrefix Multicodec.Multihash
   digestLength Integer
-  
-  -- Payload Encoding
-  contentEnc Multicodec -- Content multicodec prefix
-
-  -- Crypto
-  rawSig     Bytes -- Raw signature bytes
+  contentEnc Multicodec
+  rawSig Bytes
 } representation stringjoin {
   join ""
 }
