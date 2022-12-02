@@ -36,28 +36,22 @@ Common formats such as JWT use encoding (e.g. base64) and text separators (e.g. 
 "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsInVjdiI6IjAuOC4xIn0.eyJhdWQiOiJkaWQ6a2V5Ono2TWtyNWFlZmluMUR6akc3TUJKM25zRkNzbnZIS0V2VGIyQzRZQUp3Ynh0MWpGUyIsImF0dCI6W3sid2l0aCI6eyJzY2hlbWUiOiJ3bmZzIiwiaGllclBhcnQiOiIvL2RlbW91c2VyLmZpc3Npb24ubmFtZS9wdWJsaWMvcGhvdG9zLyJ9LCJjYW4iOnsibmFtZXNwYWNlIjoid25mcyIsInNlZ21lbnRzIjpbIk9WRVJXUklURSJdfX1dLCJleHAiOjkyNTY5Mzk1MDUsImlzcyI6ImRpZDprZXk6ejZNa2tXb3E2UzN0cVJXcWtSbnlNZFhmcnM1NDlFZnU2cUN1NHVqRGZNY2pGUEpSIiwicHJmIjpbXX0.SjKaHG_2Ce0pjuNF5OD-b6joN1SIJMpjKjjl4JE61_upOrtvKoDQSxZ7WeYVAIATDl8EmcOKj9OqOSw0Vg8VCA"
 ```
 
-Many encodings are less efficient and inconvenient, so others use canonicalization and a tag. This can be 
-
-FIXME
+Many text encodings of binary are inefficient and inconvenient. Others have opted to use canonicalization and a tag. This can be effective, but requires careful handling and signalling of the specific canonicalization method used.
 
 ``` js
-const payload = {"hello": "world", "count": 42}.toString()
-
-{
-  payload: payload,
-  sig: key.sign(payload + sha256(payload)
-}
+const payload = canonicalize({"hello": "world", "count": 42})
+{payload: payload, sig: key.sign(sha256(payload))}
 ```
 
-Directly signing over IPLD introduces new problems: forced encoding and canonicalization attacks. Varsig aims to alleviate both.
+Directly signing over canonicalized introduces new problems: forced encoding and canonicalization attacks. By taking advantage of existing IPLD canonicalization, varsig aims to alleviate both.
 
 ## 1.1 Forced Encoding
 
-Data must first be rendered to binary before it is signed. This means choosing imposing encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a CID. In IPFS, CIDs imply a link, which can have impliciations for network access and storage. Futher, generating a CID means producing a hash, which is then potentially rehashed by the cryptographic signature library.
+Data must first be rendered to binary before it is signed. This means choosing imposing encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a CID. In IPFS, CIDs imply a link, which can have impliciations for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed by the cryptographic signature library.
 
 To remedy this, Varsig includes the encoding information used in production of the signature.
 
-## 1.2 Canonnicalization Attacks
+## 1.2 Canonicalization Attacks
 
 Since IPLD is deterministically encoded, it can be tempting to not sign the IPLD data directly, and pass the signature around in the same payload rather than wrapping it. Since the original payload can be rederived from the output, this seems like a clean option:
 
