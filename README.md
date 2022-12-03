@@ -130,7 +130,7 @@ Next, the application parses the JSON with the browser's native JSON parser.
 }
 ```
 
-The application needs to check the signature of all field minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal IPLD representation using Wasm.
+The application needs to check the signature of all field minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal IPLD representation using Rust/Wasm.
 
 ``` Rust
 IPLD::Assoc([
