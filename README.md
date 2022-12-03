@@ -200,14 +200,14 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 
 A varsig is a bytestring that includes the following information:
 
-| Segment Name              | Type     | Description                                     | Required |
-|---------------------------|----------|-------------------------------------------------|----------|
-| Varsog Multiformat Prefix | `0x34`   | The multicodec varsig prefix                    | Yes      |
-| Public Key Prefix         | `Varint` | The multicodec prefix for the public key type   | Yes      |
-| Hash Prefix               | `Varint` | The multicodec prefix for the hash algorithm    | Yes      |
-| Hash Length               | `Varint` | The hash length                                 | Yes      |
-| Content Multicodec Prefix | `Varint` | The IPLD encoding uses to canonicalize the data | Yes      |
-| Raw Signature             | `Varint` | The raw signature                               | Yes      |
+| Segment Name              | Type          | Description                                     | Required |
+|---------------------------|---------------|-------------------------------------------------|----------|
+| Varsog Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
+| Public Key Prefix         | `Varint`      | The multicodec prefix for the public key type   | Yes      |
+| Hash Prefix               | `Varint`      | The multicodec prefix for the hash algorithm    | Yes      |
+| Hash Length               | `Varint`      | The hash length                                 | Yes      |
+| Content Multicodec Prefix | `Multiformat` | The IPLD encoding uses to canonicalize the data | Yes      |
+| Raw Signature             | `Varint`      | The raw signature                               | Yes      |
   
 ## 3.1 Segments
 
