@@ -7,6 +7,7 @@ DAG-CBOR
 DAG-JSON
 DAG-PB
 DIDs
+EdDSA
 Gozalishvili
 IPFS
 IPLD
@@ -35,6 +36,7 @@ URI
 UTF
 Ukustov
 Validators
+Varints
 Wasm
 Zelenka
 auth
