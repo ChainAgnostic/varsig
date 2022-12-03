@@ -202,7 +202,7 @@ A varsig is a bytestring that includes the following information:
 
 | Segment Name              | Type     | Description                                     | Required |
 |---------------------------|----------|-------------------------------------------------|----------|
-| Varsig Prefix             | `0xd000` | The multicodec varsig prefix                    | Yes      |
+| Varsog Multiformat Prefix | `0x34`   | The multicodec varsig prefix                    | Yes      |
 | Public Key Prefix         | `Varint` | The multicodec prefix for the public key type   | Yes      |
 | Hash Prefix               | `Varint` | The multicodec prefix for the hash algorithm    | Yes      |
 | Hash Length               | `Varint` | The hash length                                 | Yes      |
@@ -213,7 +213,7 @@ A varsig is a bytestring that includes the following information:
 
 ### 3.1.1 Varsig Prefix
 
-The varsig prefix MUST be `0xd000`.
+The varsig prefix MUST be `0x34`.
 
 ### 3.1.2 Public Key Prefix
 
@@ -244,7 +244,7 @@ The raw signature bytes
 ## 3.2 Byte Segments
 
 ```xml
-<varint 0xd000><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><bytes raw_signature>
+<multifomat 0x34><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><bytes raw_signature>
 ```
 
 ## 3.3 IPLD Schema
