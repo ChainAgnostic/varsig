@@ -68,7 +68,7 @@ Since IPLD is deterministically encoded, it can be tempting to rely on canonical
 }
 ```
 
-This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application.
+This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
 >
@@ -88,6 +88,93 @@ This opens the potential for [canonicalization attacks](https://soatok.blog/2021
 ```
 
 In the above example, the canonicalization step MAY lead to the signature validating, but the client parsing the `role: "admin"` field instead.
+
+## 1.2.1 Example
+
+The above can be quite subtle. Here is a step by step example of one such scenario.
+
+An application receives some block of data, as binary. It checks the claimed CID, which validates.
+
+```
+0x7ba202022726f6c65223a202275736572222ca202022726f6c65223a202261646d696e222ca2020226c696e6b73223a205ba202020207b222f223a20226261666b72656964623271336b7467746c6d3579696f3762756a337379707967686a7466683565726e737465716d616b66347032633562776d7969227d2c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207b222f223a20226261666b72656963373579646735766b773332346f716b636d716c74667663336b6976796e67716b69626a6f7973647769696c616b68347a356665227d2ca202020207b222f223a20226261666b726569666664697a3672616634367a727233623275737566677a35666f34346167676d6f637a347a61707072366b6868686c6a63647079227da20205d2ca202022736967223a2022387566615339773343474e386362515455536f4c31693765614b69574c53587344324c625a566d764d397a4622a7d
+```
+
+Decoded to a string, the above decodes as follows:
+
+```
+"{\n
+  "role": "user",\n
+  "role": "admin",\n
+  "links": [\n
+    {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},\n
+    {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},\n
+    {"/": "bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"}\n
+  ],\n
+  "sig": "8ufaS9w3CGN8cbQTUSoL1i7eaKiWLSXsD2LbZVmvM9zF"\n
+}"
+```
+
+Note that the JSON above contains a duplicate `role` key a `sig` field with a base64 signature.
+
+Next, the application parses the JSON with the browser's native JSON parser.
+
+``` json
+{
+  "role": "admin", // Picked the second key
+  "links": [
+    {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},
+    {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},
+    {"/": "bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"}
+  ],
+  "sig": "8ufaS9w3CGN8cbQTUSoL1i7eaKiWLSXsD2LbZVmvM9zF"
+}
+```
+
+The application needs to check the signature of all field minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal IPLD representation using Wasm.
+
+``` Rust
+IPLD::Assoc([
+    ("role", IPLD::String("user")),
+    (
+        "links",
+        IPLD::Array([
+            IPLD::CID("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
+            IPLD::CID("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+            IPLD::CID("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+        ]),
+    ),
+    (
+        "sig",
+        IPLD::Binary([
+            0xf2, 0xe7, 0xda, 0x4b, 0xdc, 0x37, 0x08, 0x63, 0x7c, 0x71, 0xb4, 0x13, 0x51, 0x2a,
+            0x0b, 0xd6, 0x2e, 0xde, 0x68, 0xa8, 0x96, 0x2d, 0x25, 0xec, 0x0f, 0x62, 0xdb, 0x65,
+            0x59, 0xaf, 0x33, 0xdc, 0xc5,
+        ]),
+    ),
+]);
+```
+
+Note that the IPLD parser has dropped the `role: "admin"` key.
+
+The `"sig"` field is then removed, and the remaining fields serialized to binary;
+
+``` Rust
+let canonicalPaylaod = IPLD.JSON.Serialize(
+    IPLD::Assoc([
+        ("role", IPLD::String("user")),
+        (
+            "links",
+            IPLD::Array([
+                IPLD::CID("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
+                IPLD::CID("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+                IPLD::CID("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+            ]),
+        )
+    ])
+);
+```
+
+The signature is then checked against the above fields, which passes since there's only a `role: "user"` entry. The application then goes onto continue to use the original JSON with the `role: "admin"` entry.
 
 # 2 Safety
 
