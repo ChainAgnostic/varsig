@@ -246,11 +246,11 @@ The raw signature bytes
 
 Varsig: `0x68d204da0324deb7de9af1d9a2a302`
 
-|               | Multiformat | Content Encoding | Public Key | Hash Algorithm | Signature            |
-|---------------|-------------|------------------|------------|----------------|----------------------|
-| Semantic Type | Varsig      | DAG-JSON         | EdDSA      | SHA2-256       | Bytes                |
-| Value         | `0x34`      | `0x0129`         | `0xed`     | `0x12`         | `0x123456789ABCDEF`  |
-| Varint        | `68`        | `d204`           | `da03`     | `24`           | `deb7de9af1d9a2a302` |
+|               | Multiformat | Content Encoding | Public Key | Hash Algorithm | Signature              |
+|---------------|-------------|------------------|------------|----------------|------------------------|
+| Semantic Type | Varsig      | DAG-JSON         | EdDSA      | SHA2-256       | Bytes                  |
+| Value         | `0x34`      | `0x0129`         | `0xed`     | `0x12`         | `0x123456789ABCDEF`    |
+| Varint        | `0x68`      | `0xd204`         | `0xda03`   | `0x24`         | `0xdeb7de9af1d9a2a302` |
 
 # 4 Further Reading
 
