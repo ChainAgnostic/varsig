@@ -202,7 +202,7 @@ A varsig is a bytestring that includes the following information:
 
 | Segment Name              | Type          | Description                                     | Required |
 |---------------------------|---------------|-------------------------------------------------|----------|
-| Varsog Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
+| Varsig Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
 | Public Key Prefix         | `Varint`      | The multicodec prefix for the public key type   | Yes      |
 | Hash Prefix               | `Varint`      | The multicodec prefix for the hash algorithm    | Yes      |
 | Hash Length               | `Varint`      | The hash length                                 | Yes      |
