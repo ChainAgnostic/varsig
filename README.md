@@ -159,7 +159,7 @@ Note that the IPLD parser has dropped the `role: "admin"` key.
 The `"sig"` field is then removed, and the remaining fields serialized to binary;
 
 ``` Rust
-Ipld::DagJson::Serialize(
+Ipld::DagJson::serialize(
     Ipld::Assoc([
         ("role", IPLD::String("user")),
         (
