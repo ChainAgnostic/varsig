@@ -35,6 +35,7 @@ URI
 UTF
 Ukustov
 Validators
+Wasm
 Zelenka
 auth
 backend
