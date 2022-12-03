@@ -241,28 +241,10 @@ For example: `0x55` for raw bytes (no special encoding), `0x0129` for DAG-JSON, 
 
 The raw signature bytes
 
-## 3.2 Byte Segments
+## 3.2 Segment Layout
 
 ```xml
 <multifomat 0x34><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><bytes raw_signature>
-```
-
-## 3.3 IPLD Schema
-
-``` ipldsch
-type TaggedVarsig union {
-  | Varsig "d000"
-} representation bytesprefix
-
-type Varsig struct {
-  keyPrefix Multicodec.PublicKey
-  hashPrefix Multicodec.Multihash
-  digestLength Integer
-  contentEnc Multicodec
-  rawSig Bytes
-} representation stringjoin {
-  join ""
-}
 ```
 
 # 4 Further Reading
