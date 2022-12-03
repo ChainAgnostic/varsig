@@ -133,19 +133,19 @@ Next, the application parses the JSON with the browser's native JSON parser.
 The application needs to check the signature of all field minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal IPLD representation using Rust/Wasm.
 
 ``` Rust
-IPLD::Assoc([
+Ipld::Assoc([
     ("role", IPLD::String("user")),
     (
         "links",
-        IPLD::Array([
-            IPLD::CID("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
-            IPLD::CID("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
-            IPLD::CID("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+        Ipld::Array([
+            Ipld::Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
+            Ipld::Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+            Ipld::Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
         ]),
     ),
     (
         "sig",
-        IPLD::Binary([
+        Ipld::Binary([
             0xf2, 0xe7, 0xda, 0x4b, 0xdc, 0x37, 0x08, 0x63, 0x7c, 0x71, 0xb4, 0x13, 0x51, 0x2a,
             0x0b, 0xd6, 0x2e, 0xde, 0x68, 0xa8, 0x96, 0x2d, 0x25, 0xec, 0x0f, 0x62, 0xdb, 0x65,
             0x59, 0xaf, 0x33, 0xdc, 0xc5,
@@ -159,15 +159,15 @@ Note that the IPLD parser has dropped the `role: "admin"` key.
 The `"sig"` field is then removed, and the remaining fields serialized to binary;
 
 ``` Rust
-let canonicalPaylaod = IPLD.JSON.Serialize(
-    IPLD::Assoc([
+Ipld::DagJson::Serialize(
+    Ipld::Assoc([
         ("role", IPLD::String("user")),
         (
             "links",
-            IPLD::Array([
-                IPLD::CID("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
-                IPLD::CID("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
-                IPLD::CID("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+            Ipld::Array([
+                Ipld::Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
+                Ipld::Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+                Ipld::Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
             ]),
         )
     ])
