@@ -198,16 +198,15 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 
 # 3 Varsig Format
 
-A varsig is a bytestring that includes the following information:
+After being decoded from Varints, a varsig includes the following segments:
 
 | Segment Name              | Type          | Description                                     | Required |
 |---------------------------|---------------|-------------------------------------------------|----------|
 | Varsig Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
-| Public Key Prefix         | `Varint`      | The multicodec prefix for the public key type   | Yes      |
-| Hash Prefix               | `Varint`      | The multicodec prefix for the hash algorithm    | Yes      |
-| Hash Length               | `Varint`      | The hash length                                 | Yes      |
 | Content Multicodec Prefix | `Multiformat` | The IPLD encoding uses to canonicalize the data | Yes      |
-| Raw Signature             | `Varint`      | The raw signature                               | Yes      |
+| Public Key Prefix         | `Multicodec`  | The multicodec prefix for the public key type   | Yes      |
+| Multihash                 | `Multihash`   | The multicodec prefix for the multihash         | Yes      |
+| Raw Signature             | `Bytes`       | The raw signature                               | Yes      |
   
 ## 3.1 Segments
 
@@ -223,29 +222,35 @@ For example: `0xe7` for secp256k1, or `0x1205` for RSA.
 
 ### 3.1.3 Hash Prefix
 
-The [multicodec](https://github.com/multiformats/multicodec) hash prefix used by the signature. This is the first segment of a [multihash](https://github.com/multiformats/multihash).
+The [multicodec](https://github.com/multiformats/multicodec) for the [multihash](https://github.com/multiformats/multihash) used by the signature. This is the first segment of a .
 
 For example: `0x16` for SHA3-256, or `0x1e` for BLAKE3
 
-### 3.1.4 Hash Length
-
-The hash length used by the signature. This is the second segment of a [multihash](https://github.com/multiformats/multihash).
-
-### 3.1.5 Content Multicodec Prefix
+### 3.1.4 Content Multicodec Prefix
 
 The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used.
 
 For example: `0x55` for raw bytes (no special encoding), `0x0129` for DAG-JSON, and `0x70` for DAG-PB.
 
-### 3.1.6 Raw Signature
+### 3.1.5 Raw Signature
 
 The raw signature bytes
 
 ## 3.2 Segment Layout
 
 ```xml
-<multifomat 0x34><varint multicodec_key_prefix><varint multicodec_hash_prefix><varint multicodec_hash_length><varint multicodec_prefix><varint raw_hash><bytes raw_signature>
+<multiformat 0x34><varint content_multicodec><varint key_multicodec><varint multihash><varint raw_signature>
 ```
+
+## 3.3 Example
+
+Varsig: `0x68d204da0324deb7de9af1d9a2a302`
+
+|               | Multiformat | Content Encoding | Public Key | Hash Algorithm | Signature            |
+|---------------|-------------|------------------|------------|----------------|----------------------|
+| Semantic Type | Varsig      | DAG-JSON         | EdDSA      | SHA2-256       | Bytes                |
+| Value         | `0x34`      | `0x0129`         | `0xed`     | `0x12`         | `0x123456789ABCDEF`  |
+| Varint        | `68`        | `d204`           | `da03`     | `24`           | `deb7de9af1d9a2a302` |
 
 # 4 Further Reading
 
