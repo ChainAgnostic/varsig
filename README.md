@@ -247,7 +247,7 @@ The raw signature bytes
 ## 3.2 Segment Layout
 
 ```xml
-<multiformat 0x34><varint content_multicodec><varint key_multicodec><varint multihash><varint raw_signature>
+<multiformat 0x34><varint content_multicodec><varint multihash><varint key_multicodec><varint raw_signature>
 ```
 
 ## 3.3 Example
