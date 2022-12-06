@@ -20,7 +20,6 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 * [IPLD](https://ipld.io/docs/)
 * [Multicodec](https://github.com/multiformats/multicodec)
-* [Multihash](https://multiformats.io/multihash/)
 
 # 0 Abstract
 
