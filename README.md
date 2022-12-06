@@ -9,6 +9,7 @@
 
 * [Irakli Gozalishvili](https://github.com/Gozala), [DAG House](https://dag.house/)
 * [Joel Thorstensson](https://github.com/oed), [3Box Labs](https://3boxlabs.com/)
+* [Quinn Wilton](https://github.com/QuinnWilton/), [Fission](https://fission.codes/)
 * [Brooklyn Zelenka](https://github.com/expede/), [Fission](https://fission.codes/)
 
 ## Language
@@ -68,7 +69,7 @@ Since IPLD is deterministically encoded, it can be tempting to rely on canonical
 }
 ```
 
-This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
+This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers for certain formats — such as JSON — are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
 >
@@ -77,7 +78,7 @@ This opens the potential for [canonicalization attacks](https://soatok.blog/2021
 ``` json
 {
   "role": "user",  // Parsed by an IPLD implementation
-  "role": "admin", // Malicious duplicate field, omitted by the IPLD parser, accpeted by the browser
+  "role": "admin", // Malicious duplicate field, omitted by the IPLD parser, accepted by the browser
   "links": [
     {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},
     {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},
@@ -91,7 +92,7 @@ In the above example, the canonicalization step MAY lead to the signature valida
 
 ## 1.2.1 Example
 
-The above can be quite subtle. Here is a step by step example of one such scenario.
+The above can be [quite subtle](https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22). Here is a step by step example of one such scenario.
 
 An application receives some block of data, as binary. It checks the claimed CID, which validates.
 
@@ -174,11 +175,11 @@ Ipld::DagJson::serialize(
 );
 ```
 
-The signature is then checked against the above fields, which passes since there's only a `role: "user"` entry. The application then goes onto continue to use the original JSON with the `role: "admin"` entry.
+The signature is then checked against the above fields, which passes since there's only a `role: "user"` entry. The application then uses the original JSON with the `role: "admin"` entry.
 
 # 2 Safety
 
-Data that has already been parsed to an in-memory IPLD representation can be canonically encoded to a trivially: it has already been through a [parser / validator](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/).
+Data that has already been parsed to an in-memory IPLD representation can be canonically encoded trivially: it has already been through a [parser / validator](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/).
 
 Data purporting to conform to an IPLD encoding (such as [DAG-JSON](https://ipld.io/specs/codecs/dag-json/spec/)) MUST be validated prior to signature verification. This can be as simple as round-trip decoding/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match. 
 
@@ -186,7 +187,7 @@ Data purporting to conform to an IPLD encoding (such as [DAG-JSON](https://ipld.
 >
 > — [DAG-JSON Spec](https://ipld.io/specs/codecs/dag-json/spec/)
 
-As it is critical for signatures guard against various attacks, the assumptions around canonical encoding MUST be enforced.
+As it is critical for guarding against various attacks, the assumptions around canonical encoding MUST be enforced.
 
 ## 2.1 Signing CIDs
 
@@ -254,10 +255,7 @@ Varsig: `0x68d204da0324deb7de9af1d9a2a302`
 
 # 4 Further Reading
 
-* https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/
-* https://latacora.micro.blog/2019/07/24/how-not-to.html
-* https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
-
-# 5 Acknowledgements
-
-Many thanks to [Quinn Wilton](https://github.com/QuinnWilton) for her many recommendations and stories of times she's used JSON signing exploits in [CTF](https://en.wikipedia.org/wiki/Capture_the_flag_(cybersecurity)) competitions.
+* [Canonicalization Attacks Against MACs and Signatures](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/)
+* [How (not) to sign a JSON object](https://latacora.micro.blog/2019/07/24/how-not-to.html)
+* [A Taxonomy of Attacks against XML Digital Signatures & Encryption](https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf)
+* [PKI Layer Cake](https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22)
