@@ -251,13 +251,13 @@ The raw signature bytes
 
 ## 3.3 Example
 
-Varsig: `0x68d204da0324deb7de9af1d9a2a302`
+Varsig: `0x68d204da0324deb7de9af1d9a2a302`, containing the example raw signature `0x123456789ABCDEF`
 
 |               | Multiformat | Content Encoding | Hash Algorithm | Public Key Algorithm | Signature              |
 |---------------|-------------|------------------|----------------|----------------------|------------------------|
 | Semantic Type | Varsig      | DAG-JSON         | SHA2-256       | EdDSA                | Bytes                  |
-| Value         | `0x34`      | `0x0129`         | `0x12`         | `0xed`               | `0x123456789ABCDEF`    |
-| Varint        | `0x68`      | `0xd204`         | `0x24`         | `0xda03`             | `0xdeb7de9af1d9a2a302` |
+| Hex Value     | `0x34`      | `0x0129`         | `0x12`         | `0xed`               | `0x123456789ABCDEF`    |
+| Varint Value  | `0x68`      | `0xd204`         | `0x24`         | `0xda03`             | `0xdeb7de9af1d9a2a302` |
 
 # 4 Further Reading
 
