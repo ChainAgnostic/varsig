@@ -134,7 +134,7 @@ The application needs to check the signature of all field minus the `sig` field.
 
 ``` Rust
 Ipld::Assoc([
-    ("role", IPLD::String("user")),
+    ("role", Ipld::String("user")),
     (
         "links",
         Ipld::Array([
@@ -161,7 +161,7 @@ The `"sig"` field is then removed, and the remaining fields serialized to binary
 ``` Rust
 Ipld::DagJson::serialize(
     Ipld::Assoc([
-        ("role", IPLD::String("user")),
+        ("role", Ipld::String("user")),
         (
             "links",
             Ipld::Array([
