@@ -211,8 +211,8 @@ After being decoded from Varints, a varsig includes the following segments:
 |---------------------------|---------------|-------------------------------------------------|----------|
 | Varsig Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
 | Content Multicodec Prefix | `Multiformat` | The IPLD encoding used to canonicalize the data | Yes      |
-| Public Key Prefix         | `Multicodec`  | The multicodec prefix for the public key type   | Yes      |
 | Multihash                 | `Multihash`   | The multicodec prefix for the multihash         | Yes      |
+| Public Key Prefix         | `Multicodec`  | The multicodec prefix for the public key type   | Yes      |
 | Raw Signature             | `Bytes`       | The raw signature                               | Yes      |
   
 ## 3.1 Segments
@@ -221,17 +221,17 @@ After being decoded from Varints, a varsig includes the following segments:
 
 The varsig prefix MUST be `0x34`.
 
-### 3.1.2 Public Key Prefix
-
-The [multicodec](https://github.com/multiformats/multicodec) prefix for the public key type associated with the signature.
-
-For example: `0xe7` for secp256k1, or `0x1205` for RSA.
-
-### 3.1.3 Hash Prefix
+### 3.1.2 Hash Prefix
 
 The [multicodec](https://github.com/multiformats/multicodec) for the [multihash](https://github.com/multiformats/multihash) used by the signature. This is the first segment of a .
 
 For example: `0x16` for SHA3-256, or `0x1e` for BLAKE3
+
+### 3.1.3 Public Key Prefix
+
+The [multicodec](https://github.com/multiformats/multicodec) prefix for the public key type associated with the signature.
+
+For example: `0xe7` for secp256k1, or `0x1205` for RSA.
 
 ### 3.1.4 Content Multicodec Prefix
 
@@ -253,11 +253,11 @@ The raw signature bytes
 
 Varsig: `0x68d204da0324deb7de9af1d9a2a302`
 
-|               | Multiformat | Content Encoding | Public Key Algorithm | Hash Algorithm | Signature              |
-|---------------|-------------|------------------|----------------------|----------------|------------------------|
-| Semantic Type | Varsig      | DAG-JSON         | EdDSA                | SHA2-256       | Bytes                  |
-| Value         | `0x34`      | `0x0129`         | `0xed`               | `0x12`         | `0x123456789ABCDEF`    |
-| Varint        | `0x68`      | `0xd204`         | `0xda03`             | `0x24`         | `0xdeb7de9af1d9a2a302` |
+|               | Multiformat | Content Encoding | Hash Algorithm | Public Key Algorithm | Signature              |
+|---------------|-------------|------------------|----------------|----------------------|------------------------|
+| Semantic Type | Varsig      | DAG-JSON         | SHA2-256       | EdDSA                | Bytes                  |
+| Value         | `0x34`      | `0x0129`         | `0x12`         | `0xed`               | `0x123456789ABCDEF`    |
+| Varint        | `0x68`      | `0xd204`         | `0x24`         | `0xda03`             | `0xdeb7de9af1d9a2a302` |
 
 # 4 Further Reading
 
