@@ -19,7 +19,9 @@ JWT
 JWT-encoded
 JWTs
 Krüger
+MACs
 Noncanonicalized
+PKI
 Parsers
 Philipp
 Pre-Draft
