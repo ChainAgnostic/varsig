@@ -193,6 +193,13 @@ As it is critical for guarding against various attacks, the assumptions around c
 
 Rather than validating the inline IPLD, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
 
+### 2.1.1 Caching & Invalidation
+
+Signing CIDs has two additional caching effects
+
+* Signing CIDs enables a simple strategy for caching validation by CID
+* Such a strategy also requires accounting for revocation of the signing keys, and so need to be tagged with this additional metadata
+
 ## 2.2 Raw (Noncanonicalized) Data
 
 Canonicalization is not required if data is encoded as raw bytes (multicodec `0x55`). The exact bytes are already present, and MUST not be changed.
