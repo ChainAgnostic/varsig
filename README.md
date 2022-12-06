@@ -204,7 +204,7 @@ After being decoded from Varints, a varsig includes the following segments:
 | Segment Name              | Type          | Description                                     | Required |
 |---------------------------|---------------|-------------------------------------------------|----------|
 | Varsig Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
-| Content Multicodec Prefix | `Multiformat` | The IPLD encoding uses to canonicalize the data | Yes      |
+| Content Multicodec Prefix | `Multiformat` | The IPLD encoding used to canonicalize the data | Yes      |
 | Public Key Prefix         | `Multicodec`  | The multicodec prefix for the public key type   | Yes      |
 | Multihash                 | `Multihash`   | The multicodec prefix for the multihash         | Yes      |
 | Raw Signature             | `Bytes`       | The raw signature                               | Yes      |
