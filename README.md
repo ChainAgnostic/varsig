@@ -207,6 +207,13 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 
 After being decoded from Varints, a varsig includes the following segments:
 
+```abnf
+varsig = %x34 varsig-content-multicodec varsig-header varsig-body
+varsig-content-multicodec = Varint ; The multicodec describing what's being signed over
+varsig-header = Varint ; Usually the public key code from Multicodec
+varsig-body = *Varint; One or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
+```
+
 | Segment Name              | Type          | Description                                     | Required |
 |---------------------------|---------------|-------------------------------------------------|----------|
 | Varsig Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
@@ -245,9 +252,8 @@ The raw signature bytes
 
 ## 3.2 Segment Layout
 
-```xml
-<multiformat 0x34><varint content_multicodec><varint multihash><varint key_multicodec><varint raw_signature>
-```
+
+<!--
 
 ## 3.3 Example
 
@@ -258,6 +264,9 @@ Varsig: `0x68d204da0324deb7de9af1d9a2a302`, containing the example raw signature
 | Semantic Type | Varsig      | DAG-JSON         | SHA2-256       | EdDSA                | Bytes                  |
 | Hex Value     | `0x34`      | `0x0129`         | `0x12`         | `0xed`               | `0x123456789ABCDEF`    |
 | Varint Value  | `0x68`      | `0xd204`         | `0x24`         | `0xda03`             | `0xdeb7de9af1d9a2a302` |
+
+ 
+ -->
 
 # 4 Further Reading
 
