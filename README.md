@@ -205,68 +205,42 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 
 # 3 Varsig Format
 
-After being decoded from Varints, a varsig includes the following segments:
+After being decoded from [LEB128](https://en.wikipedia.org/wiki/LEB128)s, a varsig includes the following segments:
 
 ```abnf
-varsig = %x34 varsig-content-multicodec varsig-header varsig-body
-varsig-content-multicodec = Varint ; The multicodec describing what's being signed over
-varsig-header = Varint ; Usually the public key code from Multicodec
-varsig-body = *Varint; One or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
+varsig = %x34 varsig-content-prefix varsig-header varsig-body
+varsig-content-prefix = LEB128 ; The multicodec describing what's being signed over
+varsig-header = LEB128 ; Usually the public key code from Multicodec
+varsig-body = *LEB128; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
 
-| Segment Name              | Type          | Description                                     | Required |
-|---------------------------|---------------|-------------------------------------------------|----------|
-| Varsig Multiformat Prefix | `0x34`        | The multicodec varsig prefix                    | Yes      |
-| Content Multicodec Prefix | `Multiformat` | The IPLD encoding used to canonicalize the data | Yes      |
-| Multihash                 | `Multihash`   | The multicodec prefix for the multihash         | Yes      |
-| Public Key Prefix         | `Multicodec`  | The multicodec prefix for the public key type   | Yes      |
-| Raw Signature             | `Bytes`       | The raw signature                               | Yes      |
-  
 ## 3.1 Segments
 
 ### 3.1.1 Varsig Prefix
 
 The varsig prefix MUST be `0x34`.
 
-### 3.1.2 Hash Prefix
+### 3.1.2 Content Multicodec Prefix
 
-The [multicodec](https://github.com/multiformats/multicodec) for the [multihash](https://github.com/multiformats/multihash) used by the signature. This is the first segment of a .
+The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used before it's signed over. The default encoding SHOULD be [`0x55` "raw binary"](https://github.com/multiformats/multicodec/blob/master/table.csv#L40).
 
-For example: `0x16` for SHA3-256, or `0x1e` for BLAKE3
-
-### 3.1.3 Public Key Prefix
-
-The [multicodec](https://github.com/multiformats/multicodec) prefix for the public key type associated with the signature.
-
-For example: `0xe7` for secp256k1, or `0x1205` for RSA.
-
-### 3.1.4 Content Multicodec Prefix
-
-The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used.
+Many signature schemes depend on a hash function. Algorithm-sensitive hashing MUST be captured in the Varsig [header algorithm](#3-1-3-signature-header) or [body](#3-1-4-varsig-body), and so MUST NOT be captured in the Content Multicodec Prefix field.
 
 For example: `0x55` for raw bytes (no special encoding), `0x0129` for DAG-JSON, and `0x70` for DAG-PB.
 
-### 3.1.5 Raw Signature
+### 3.1.3 Signature Header
 
-The raw signature bytes
+The prefix of the signature algorithm. This is often the [multicodec](https://github.com/multiformats/multicodec) of the associated public key, but MAY be unique for the signature type.
 
-## 3.2 Segment Layout
+### 3.1.4 Varsig Body
 
+The varsig body MUST consist of zero or more segments required by the signature algorithm.
 
-<!--
+Some examples include:
 
-## 3.3 Example
-
-Varsig: `0x68d204da0324deb7de9af1d9a2a302`, containing the example raw signature `0x123456789ABCDEF`
-
-|               | Multiformat | Content Encoding | Hash Algorithm | Public Key Algorithm | Signature              |
-|---------------|-------------|------------------|----------------|----------------------|------------------------|
-| Semantic Type | Varsig      | DAG-JSON         | SHA2-256       | EdDSA                | Bytes                  |
-| Hex Value     | `0x34`      | `0x0129`         | `0x12`         | `0xed`               | `0x123456789ABCDEF`    |
-| Varint Value  | `0x68`      | `0xd204`         | `0x24`         | `0xda03`             | `0xdeb7de9af1d9a2a302` |
-
- 
- -->
+* The raw signature bytes only
+* The hash algorithm multicodec prefix, counter, HMAC, and raw bytes
+* 
 
 # 4 Further Reading
 
