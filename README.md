@@ -205,18 +205,18 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 
 # 3 Varsig Format
 
-After being decoded from [LEB128](https://en.wikipedia.org/wiki/LEB128)s, a varsig includes the following segments:
+After being decoded from [unsigned varint]s, a varsig includes the following segments:
 
 ```abnf
 varsig = %x34 varsig-content-encoding varsig-header varsig-body
-varsig-content-encoding = LEB128 ; The multicodec describing what's being signed over
-varsig-header = LEB128 ; Usually the public key code from Multicodec
-varsig-body = *LEB128; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
+varsig-content-encoding = unsigned-varint ; The multicodec describing what's being signed over
+varsig-header = unsigned-varint ; Usually the public key code from Multicodec
+varsig-body = *unsigned-varint; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
 
 For example, here is a EdDSA signature for content encoded as DAG-PB:
 
-`0x3470edae3784f03f9ee1163382fa6efa73b0c31ecf58c899c836709303ba4621d1e6df20e09aaa568914290b7ea124f5b38e70b9b69c7de0d216880eac885edd41c302`
+`0x3470ed01ae3784f03f9ee1163382fa6efa73b0c31ecf58c899c836709303ba4621d1e6df20e09aaa568914290b7ea124f5b38e70b9b69c7de0d216880eac885edd41c302`
 
 ### 3.1 Varsig Prefix
 
@@ -255,3 +255,5 @@ Some examples include:
 * [How (not) to sign a JSON object](https://latacora.micro.blog/2019/07/24/how-not-to.html)
 * [A Taxonomy of Attacks against XML Digital Signatures & Encryption](https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf)
 * [PKI Layer Cake](https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22)
+
+[unsigned varint]: https://github.com/multiformats/unsigned-varint
