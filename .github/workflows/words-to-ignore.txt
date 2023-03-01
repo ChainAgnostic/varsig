@@ -7,8 +7,10 @@ DAG-CBOR
 DAG-JSON
 DAG-PB
 DIDs
+DKIM
 EdDSA
 Gozalishvili
+HMAC
 IPFS
 IPLD
 IPLD-enabled
@@ -19,6 +21,7 @@ JWT
 JWT-encoded
 JWTs
 Krüger
+LEB
 MACs
 Noncanonicalized
 PKI

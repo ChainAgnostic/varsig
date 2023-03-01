@@ -246,7 +246,7 @@ The varsig body MUST consist of zero or more segments required by the signature 
 Some examples include:
 
 * Raw signature bytes only
-* CID of DKIM certification transparency record, and raw signature bytes
+* CID of [DKIM](https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail) certification transparency record, and raw signature bytes
 * Hash algorithm multicodec prefix, signature counter, HMAC, and raw signature bytes
 
 # 4 Further Reading
