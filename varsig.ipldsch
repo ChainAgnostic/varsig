@@ -1,0 +1,9 @@
+type Varsig union {
+  | VarsigFields "34"
+} representation bytesprefix
+
+type VarsigFields struct {
+    content_encoding int
+    header           int
+    varsig-body      bytes # Joined segments of form [varint]
+} representation stringjoin
