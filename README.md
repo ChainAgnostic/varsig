@@ -214,13 +214,15 @@ varsig-header = LEB128 ; Usually the public key code from Multicodec
 varsig-body = *LEB128; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
 
-## 3.1 Segments
+For example, here is a EdDSA signature for content encoded as DAG-PB:
 
-### 3.1.1 Varsig Prefix
+`0x3470edae3784f03f9ee1163382fa6efa73b0c31ecf58c899c836709303ba4621d1e6df20e09aaa568914290b7ea124f5b38e70b9b69c7de0d216880eac885edd41c302`
+
+### 3.1 Varsig Prefix
 
 The varsig prefix MUST be `0x34`.
 
-### 3.1.2 Content Multicodec Prefix
+### 3.2 Content Multicodec Prefix
 
 The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used before it's signed over. The default encoding SHOULD be [`0x55` "raw binary"](https://github.com/multiformats/multicodec/blob/master/table.csv#L40).
 
@@ -233,11 +235,11 @@ Some examples include:
 * `0x0129` for DAG-JSON
 * `0x0202` for [CAR](https://ipld.io/specs/transport/car/) files
 
-### 3.1.3 Signature Header
+### 3.3 Signature Header
 
 The prefix of the signature algorithm. This is often the [multicodec](https://github.com/multiformats/multicodec) of the associated public key, but MAY be unique for the signature type.
 
-### 3.1.4 Varsig Body
+### 3.4 Varsig Body
 
 The varsig body MUST consist of zero or more segments required by the signature algorithm.
 
