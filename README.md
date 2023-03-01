@@ -237,7 +237,7 @@ Some examples include:
 
 ### 3.3 Signature Header
 
-The prefix of the signature algorithm. This is often the [multicodec](https://github.com/multiformats/multicodec) of the associated public key, but MAY be unique for the signature type.
+The prefix of the signature algorithm. This is often the [multicodec](https://github.com/multiformats/multicodec) of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. This field MUST act as a discriminant for how many expected fields come in the varsig body, and what each of them mean.
 
 ### 3.4 Varsig Body
 
