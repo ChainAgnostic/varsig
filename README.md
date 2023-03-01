@@ -208,8 +208,8 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 After being decoded from [LEB128](https://en.wikipedia.org/wiki/LEB128)s, a varsig includes the following segments:
 
 ```abnf
-varsig = %x34 varsig-content-prefix varsig-header varsig-body
-varsig-content-prefix = LEB128 ; The multicodec describing what's being signed over
+varsig = %x34 varsig-content-encoding varsig-header varsig-body
+varsig-content-encoding = LEB128 ; The multicodec describing what's being signed over
 varsig-header = LEB128 ; Usually the public key code from Multicodec
 varsig-body = *LEB128; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
@@ -226,7 +226,12 @@ The [multicodec](https://github.com/multiformats/multicodec) prefix of the encod
 
 Many signature schemes depend on a hash function. Algorithm-sensitive hashing MUST be captured in the Varsig [header algorithm](#3-1-3-signature-header) or [body](#3-1-4-varsig-body), and so MUST NOT be captured in the Content Multicodec Prefix field.
 
-For example: `0x55` for raw bytes (no special encoding), `0x0129` for DAG-JSON, and `0x70` for DAG-PB.
+Some examples include:
+
+* `0x55` for raw bytes (no special encoding)
+* `0x70` for DAG-PB
+* `0x0129` for DAG-JSON
+* `0x0202` for [CAR](https://ipld.io/specs/transport/car/) files
 
 ### 3.1.3 Signature Header
 
@@ -238,9 +243,9 @@ The varsig body MUST consist of zero or more segments required by the signature 
 
 Some examples include:
 
-* The raw signature bytes only
-* The hash algorithm multicodec prefix, counter, HMAC, and raw bytes
-* 
+* Raw signature bytes only
+* CID of DKIM certification transparency record, and raw signature bytes
+* Hash algorithm multicodec prefix, signature counter, HMAC, and raw signature bytes
 
 # 4 Further Reading
 
