@@ -14,20 +14,20 @@
 
 ## Language
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119](https://datatracker.ietf.org/doc/html/rfc2119).
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119].
 
 ## Dependencies
 
-* [IPLD](https://ipld.io/docs/)
-* [Multicodec](https://github.com/multiformats/multicodec)
+* [IPLD]
+* [Multicodec]
 
 # 0 Abstract
 
-Varsig is a [multiformat](https://multiformats.io) for describing signatures over IPLD data and raw bytes in a way that preserves information about the payload and canonicalization information.
+Varsig is a [multiformat][Multiformats] for describing signatures over IPLD data and raw bytes in a way that preserves information about the payload and canonicalization information.
 
 # 1 Introduction
 
-[IPLD](https://ipld.io/docs) is a deterministic encoding scheme for data expressed in [common types](https://ipld.io/docs/data-model/kinds/) plus content addressed links. 
+[IPLD] is a deterministic encoding scheme for data expressed in [common types][IPLD Data Model] plus content addressed links. 
 
 Common formats such as JWT use encoding (e.g. base64) and text separators (e.g. `"."`) to pass around encoded data and their signatures:
 
@@ -68,11 +68,11 @@ Since IPLD is deterministically encoded, it can be tempting to rely on canonical
 }
 ```
 
-This opens the potential for [canonicalization attacks](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/). Parsers for certain formats — such as JSON — are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
+This opens the potential for [canonicalization attacks]. Parsers for certain formats — such as JSON — are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
 >
-> — [RFC8259](https://www.rfc-editor.org/rfc/rfc8259#page-10)
+> — [RFC8259]
 
 ``` json
 {
@@ -91,7 +91,7 @@ In the above example, the canonicalization step MAY lead to the signature valida
 
 ## 1.2.1 Example
 
-The above can be [quite subtle](https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22). Here is a step by step example of one such scenario.
+The above can be [quite subtle][PKI Layer Cake]. Here is a step by step example of one such scenario.
 
 An application receives some block of data, as binary. It checks the claimed CID, which validates.
 
@@ -178,13 +178,13 @@ The signature is then checked against the above fields, which passes since there
 
 # 2 Safety
 
-Data that has already been parsed to an in-memory IPLD representation can be canonically encoded trivially: it has already been through a [parser / validator](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/).
+Data that has already been parsed to an in-memory IPLD representation can be canonically encoded trivially: it has already been through a [parser / validator][Parse Don't Validate].
 
-Data purporting to conform to an IPLD encoding (such as [DAG-JSON](https://ipld.io/specs/codecs/dag-json/spec/)) MUST be validated prior to signature verification. This can be as simple as round-trip decoding/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match. 
+Data purporting to conform to an IPLD encoding (such as [DAG-JSON] MUST be validated prior to signature verification. This can be as simple as round-trip decoding/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match. 
 
 > [Implementers] may provide an opt-in for systems where round-trip determinism is a desireable [sic] feature and backward compatibility with old, non-strict data is unnecessary.
 >
-> — [DAG-JSON Spec](https://ipld.io/specs/codecs/dag-json/spec/)
+> — [DAG-JSON Spec][DAG-JSON]
 
 As it is critical for guarding against various attacks, the assumptions around canonical encoding MUST be enforced.
 
@@ -224,7 +224,7 @@ The varsig prefix MUST be `0x34`.
 
 ### 3.2 Content Multicodec Prefix
 
-The [multicodec](https://github.com/multiformats/multicodec) prefix of the encoding scheme used before it's signed over. The default encoding SHOULD be [`0x55` "raw binary"](https://github.com/multiformats/multicodec/blob/master/table.csv#L40).
+The [multicodec] prefix of the encoding scheme used before it's signed over. The default encoding SHOULD be [`0x55` "raw binary"][raw binary multicodec].
 
 Many signature schemes depend on a hash function. Algorithm-sensitive hashing MUST be captured in the Varsig [header algorithm](#3-1-3-signature-header) or [body](#3-1-4-varsig-body), and so MUST NOT be captured in the Content Multicodec Prefix field.
 
@@ -233,11 +233,11 @@ Some examples include:
 * `0x55` for raw bytes (no special encoding)
 * `0x70` for DAG-PB
 * `0x0129` for DAG-JSON
-* `0x0202` for [CAR](https://ipld.io/specs/transport/car/) files
+* `0x0202` for [CAR] files
 
 ### 3.3 Signature Header
 
-The prefix of the signature algorithm. This is often the [multicodec](https://github.com/multiformats/multicodec) of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. This field MUST act as a discriminant for how many expected fields come in the varsig body, and what each of them mean.
+The prefix of the signature algorithm. This is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. This field MUST act as a discriminant for how many expected fields come in the varsig body, and what each of them mean.
 
 ### 3.4 Varsig Body
 
@@ -246,7 +246,7 @@ The varsig body MUST consist of zero or more segments required by the signature 
 Some examples include:
 
 * Raw signature bytes only
-* CID of [DKIM](https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail) certification transparency record, and raw signature bytes
+* CID of [DKIM] certification transparency record, and raw signature bytes
 * Hash algorithm multicodec prefix, signature counter, HMAC, and raw signature bytes
 
 # 4 Further Reading
@@ -254,6 +254,20 @@ Some examples include:
 * [Canonicalization Attacks Against MACs and Signatures](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/)
 * [How (not) to sign a JSON object](https://latacora.micro.blog/2019/07/24/how-not-to.html)
 * [A Taxonomy of Attacks against XML Digital Signatures & Encryption](https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf)
-* [PKI Layer Cake](https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22)
+* [PKI Layer Cake]
 
+[CAR]: https://ipld.io/specs/transport/car/
+[DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
+[DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
+[IPLD Data Model]: https://ipld.io/docs/data-model/kinds/
+[IPLD]: https://ipld.io/docs/
+[Multicodec]: https://github.com/multiformats/multicodec
+[Multiformats]: https://multiformats.io
+[PKI Layer Cake]: https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22
+[Parse Don't Validate]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
+[RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
+[RFC8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
+[canonicalization attacks]: https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/
+[multicodec]: https://github.com/multiformats/multicodec
+[raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
