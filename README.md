@@ -210,7 +210,7 @@ After being decoded from [unsigned varint]s, a varsig includes the following seg
 
 ```abnf
 varsig = multibase-prefix %x34 varsig-header varsig-body
-multibase-prefix = 2*OCTET ; Multibase
+multibase-prefix = ALPHA ; Multibase
 varsig-header = unsigned-varint ; Usually the public key code from Multicodec
 varsig-body = *unsigned-varint; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
