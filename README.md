@@ -19,6 +19,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 ## Dependencies
 
 * [IPLD]
+* [Multibase]
 * [Multicodec]
 
 # 0 Abstract
@@ -208,7 +209,8 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 After being decoded from [unsigned varint]s, a varsig includes the following segments:
 
 ```abnf
-varsig = %x34 varsig-header varsig-body
+varsig = multibase-prefix %x34 varsig-header varsig-body
+multibase-prefix = 2*OCTET ; Multibase
 varsig-header = unsigned-varint ; Usually the public key code from Multicodec
 varsig-body = *unsigned-varint; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
@@ -235,7 +237,73 @@ Some examples include:
 * CID of [DKIM] certification transparency record, and raw signature bytes
 * Hash algorithm multicodec prefix, signature counter, HMAC, and raw signature bytes
 
-# 4 Further Reading
+# 4 Registry of Common Signature Algorithms
+
+Below are a few common signature headers and their fields.
+
+## 4.1 RSA
+
+RSASSA-PKCS #1 v1.5 signatures MUST include the following segments:
+
+``` abnf
+rsa-varsig-header = 0x1205 ; RSASSA-PKCS #1 v1.5
+rsa-hash-algorithm = 2*OCTET
+sig-bytes = varint
+```
+
+### 4.1.1 Example: RS256
+
+``` abnf
+rsa-varsig-header = 0x1205 ; RSASSA-PKCS #1 v1.5 multicodec prefix
+rsa-hash-algorithm = 0x12 ; From multicodec
+sig-bytes = varint
+```
+
+### 4.1.3 Example: RS512
+
+``` abnf
+rsa-varsig-header = 0x1205 ; RSASSA-PKCS #1 v1.5 multicodec prefix
+rsa-hash-algorithm = 0x13 ; SHA2-512 multicodec prefix
+sig-bytes = varint
+```
+
+## 4.2 EdDSA
+
+``` abnf
+eddsa-varsig-header = 0xed ; Ed25519 multicodec prefix
+eddsa-hash-algorithm = 2*OCTET ; Multicodec prefix, typically 0x12 SHA2-256
+sig-bytes = varint
+```
+
+## 4.3 ECDSA
+
+ECDSA defines a general mechanism over many elliptic curves. Here are a few examples encoded as varsig:
+
+### 4.3.1 Example: ES256
+
+``` abnf
+es256-varsig-header = 0x1200 ; P-256 multicodec prefix
+es256-hash-algorithm = 0x12 ; SHA2-256 multicodec prefix
+sig-bytes = varint
+```
+
+### 4.3.1 Example: ES512
+
+``` abnf
+es512-varsig-header = 0x1200 ; P-256 multicodec prefix
+es512-hash-algorithm = 0x13 ; SHA2-512 multicodec prefix
+sig-bytes = varint
+```
+
+### 4.3.1 Example: ES256K
+
+``` abnf
+es256k-varsig-header = 0xe7 ; secp256k1 multicodec prefix
+es256k-hash-algorithm = 0x12 ; SHA2-256 multicodec prefix
+sig-bytes = varint
+```
+
+# 5 Further Reading
 
 * [Canonicalization Attacks Against MACs and Signatures](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/)
 * [How (not) to sign a JSON object](https://latacora.micro.blog/2019/07/24/how-not-to.html)
@@ -254,6 +322,8 @@ Some examples include:
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
 [RFC8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
 [canonicalization attacks]: https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/
+[multibase]: https://github.com/multiformats/multibase
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
+ 
