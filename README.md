@@ -254,17 +254,17 @@ sig-bytes = *OCTET
 
 ### 4.1.1 Example: RS256
 
-| Segment              | Hexadecimal | Unsigned Varint | Comment                               | 
-|----------------------|-------------|-----------------|---------------------------------------|
-| `rsa-varsig-header`  | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 multicodec prefix |
-| `rsa-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix          |
+| Segment              | Hexadecimal | Unsigned Varint | Comment                                 | 
+|----------------------|-------------|-----------------|-----------------------------------------|
+| `rsa-varsig-header`  | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix            |
 
 ### 4.1.3 Example: RS512
 
-| Segment              | Hexadecimal | Unsigned Varint | Comment                               | 
-|----------------------|-------------|-----------------|---------------------------------------|
-| `rsa-varsig-header`  | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 multicodec prefix |
-| `rsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix          |
+| Segment              | Hexadecimal | Unsigned Varint | Comment                                 | 
+|----------------------|-------------|-----------------|-----------------------------------------|
+| `rsa-varsig-header`  | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix            |
 
 ## 4.2 Ed25519
 
@@ -273,9 +273,9 @@ ed25519-varsig-header = 0xed ; Ed25519 multicodec prefix
 sig-bytes = 32(OCTET)
 ```
 
-| Segment                 | Hexadecimal | Unsigned Varint | Comment                       | 
-|-------------------------|-------------|-----------------|-------------------------------|
-| `ed25519-varsig-header` | `0xed`      | `0xed01`        | Ed25519 key multicodec prefix |
+| Segment                 | Hexadecimal | Unsigned Varint | Comment                         | 
+|-------------------------|-------------|-----------------|---------------------------------|
+| `ed25519-varsig-header` | `0xed`      | `0xed01`        | Ed25519 key [multicodec] prefix |
 
 ## 4.3 ECDSA
 
@@ -288,9 +288,9 @@ es256-varsig-header = 0x1200 ; P-256 multicodec prefix
 sig-bytes = 64(OCTET)
 ```
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                 | 
-|------------------------|-------------|-----------------|-------------------------|
-| `es256-varsig-header`  | `0x1200`    | `0x8024`        | P-256 multicodec prefix |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                   | 
+|------------------------|-------------|-----------------|---------------------------|
+| `es256-varsig-header`  | `0x1200`    | `0x8024`        | P-256 [multicodec] prefix |
 
 ### 4.3.1 Example: ES512
 
@@ -299,9 +299,9 @@ es512-varsig-header = 0x1202 ; P-521 multicodec prefix
 sig-bytes = 128(OCTET)
 ```
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                 | 
-|------------------------|-------------|-----------------|-------------------------|
-| `es256-varsig-header`  | `0x1202`    | `0x8224`        | P-521 multicodec prefix |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                   | 
+|------------------------|-------------|-----------------|---------------------------|
+| `es256-varsig-header`  | `0x1202`    | `0x8224`        | P-521 [multicodec] prefix |
 
 ### 4.3.1 Example: ES256K
 
@@ -310,9 +310,9 @@ es256k-varsig-header = 0xe7 ; secp256k1 multicodec prefix
 sig-bytes = 64(OCTET)
 ```
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                     | 
-|------------------------|-------------|-----------------|-----------------------------|
-| `es256-varsig-header`  | `0xe7`      | `0xe701`        | secp256k1 multicodec prefix |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                       | 
+|------------------------|-------------|-----------------|-------------------------------|
+| `es256-varsig-header`  | `0xe7`      | `0xe701`        | secp256k1 [multicodec] prefix |
 
 # 5 Further Reading
 
