@@ -8,6 +8,7 @@ DAG-JSON
 DAG-PB
 DIDs
 DKIM
+ECDSA
 EdDSA
 Gozalishvili
 HMAC
@@ -23,12 +24,14 @@ JWTs
 Krüger
 LEB
 MACs
+Multibase
 Noncanonicalized
 PKI
 Parsers
 Philipp
 Pre-Draft
 RSA
+RSASSA-PKCS
 SHA
 SIWE
 Sergey
