@@ -208,8 +208,7 @@ Canonicalization is not required if data is encoded as raw bytes (multicodec `0x
 After being decoded from [unsigned varint]s, a varsig includes the following segments:
 
 ```abnf
-varsig = %x34 varsig-content-encoding varsig-header varsig-body
-varsig-content-encoding = unsigned-varint ; The multicodec describing what's being signed over
+varsig = %x34 varsig-header varsig-body
 varsig-header = unsigned-varint ; Usually the public key code from Multicodec
 varsig-body = *unsigned-varint; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
 ```
@@ -222,26 +221,13 @@ For example, here is a EdDSA signature for content encoded as DAG-PB:
 
 The varsig prefix MUST be `0x34`.
 
-### 3.2 Content Multicodec Prefix
-
-The [multicodec] prefix of the encoding scheme used before it's signed over. The default encoding SHOULD be [`0x55` "raw binary"][raw binary multicodec].
-
-Many signature schemes depend on a hash function. Algorithm-sensitive hashing MUST be captured in the Varsig [header algorithm](#3-1-3-signature-header) or [body](#3-1-4-varsig-body), and so MUST NOT be captured in the Content Multicodec Prefix field.
-
-Some examples include:
-
-* `0x55` for raw bytes (no special encoding)
-* `0x70` for DAG-PB
-* `0x0129` for DAG-JSON
-* `0x0202` for [CAR] files
-
-### 3.3 Signature Header
+### 3.2 Signature Header
 
 The prefix of the signature algorithm. This is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. This field MUST act as a discriminant for how many expected fields come in the varsig body, and what each of them mean.
 
-### 3.4 Varsig Body
+### 3.3 Varsig Body
 
-The varsig body MUST consist of zero or more segments required by the signature algorithm.
+The varsig body MUST consist of zero or more segments, and MUST be defined by the signature algorithm.
 
 Some examples include:
 
