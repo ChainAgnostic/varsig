@@ -246,6 +246,7 @@ Below are a few common signature headers and their fields.
 RSASSA-PKCS #1 v1.5 signatures MUST include the following segments:
 
 ``` abnf
+rsa-varsig = rsa-varsig-header rsa-hash-algorithm signature-byte-length sig-bytes
 rsa-varsig-header = 0x1205 ; RSASSA-PKCS #1 v1.5
 rsa-hash-algorithm = unsigned-varint
 signature-byte-length = unsigned-varint
@@ -269,6 +270,7 @@ sig-bytes = *OCTET
 ## 4.2 Ed25519
 
 ``` abnf
+ed25519-varsig = ed25519-varsig-header sig-bytes
 ed25519-varsig-header = 0xed ; Ed25519 multicodec prefix
 sig-bytes = 32(OCTET)
 ```
@@ -293,6 +295,7 @@ Here are a few examples encoded as varsig:
 ### 4.3.1 Example: ES256
 
 ``` abnf
+es256-varsig = es256-varsig-header es256-hash-algorithm sig-bytes
 es256-varsig-header = 0x1200 ; P-256 multicodec prefix
 es256-hash-algorithm = 0x12 ; SHA2-256
 sig-bytes = 64(OCTET)
@@ -306,6 +309,7 @@ sig-bytes = 64(OCTET)
 ### 4.3.2 Example: ES256K
 
 ``` abnf
+es256k-varsig = es256k-varsig-header es256k-hash-algorithm sig-bytes
 es256k-varsig-header = 0xe7 ; secp256k1 multicodec prefix
 es256k-hash-algorithm = 0x12 ; SHA2-256
 sig-bytes = 64(OCTET)
