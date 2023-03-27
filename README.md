@@ -279,40 +279,75 @@ sig-bytes = 32(OCTET)
 
 ## 4.3 ECDSA
 
-ECDSA defines a general mechanism over many elliptic curves. Here are a few examples encoded as varsig:
+ECDSA defines a general mechanism over many elliptic curves. 
+
+``` abnf
+ecdsa-varsig = ecdsa-varsig-header
+ecdsa-varsig-header = unsigned-varint
+ecdsa-hash-algorithm = unsigned-varint
+sig-bytes = *OCTET
+```
+
+Here are a few examples encoded as varsig:
 
 ### 4.3.1 Example: ES256
 
 ``` abnf
 es256-varsig-header = 0x1200 ; P-256 multicodec prefix
+es256-hash-algorithm = 0x12 ; SHA2-256
 sig-bytes = 64(OCTET)
 ```
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                   | 
-|------------------------|-------------|-----------------|---------------------------|
-| `es256-varsig-header`  | `0x1200`    | `0x8024`        | P-256 [multicodec] prefix |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
+|------------------------|-------------|-----------------|------------------------------|
+| `es256-varsig-header`  | `0x1200`    | `0x8024`        | P-256 [multicodec] prefix    |
+| `es256-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix |
 
-### 4.3.1 Example: ES512
-
-``` abnf
-es512-varsig-header = 0x1202 ; P-521 multicodec prefix
-sig-bytes = 128(OCTET)
-```
-
-| Segment                | Hexadecimal | Unsigned Varint | Comment                   | 
-|------------------------|-------------|-----------------|---------------------------|
-| `es256-varsig-header`  | `0x1202`    | `0x8224`        | P-521 [multicodec] prefix |
-
-### 4.3.1 Example: ES256K
+### 4.3.2 Example: ES256K
 
 ``` abnf
 es256k-varsig-header = 0xe7 ; secp256k1 multicodec prefix
+es256k-hash-algorithm = 0x12 ; SHA2-256
 sig-bytes = 64(OCTET)
 ```
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                       | 
-|------------------------|-------------|-----------------|-------------------------------|
-| `es256-varsig-header`  | `0xe7`      | `0xe701`        | secp256k1 [multicodec] prefix |
+| Segment                 | Hexadecimal | Unsigned Varint | Comment                        | 
+|-------------------------|-------------|-----------------|--------------------------------|
+| `es256k-varsig-header`  | `0xe7`      | `0xe701`        | secp256k1 [multicodec] prefix  |
+| `es256k-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix   |
+
+### 4.3.3 Example: ES512
+
+``` abnf
+es512-varsig = es512-varsig-header es512-hash-algorithm sig-bytes
+es512-varsig-header = 0x1202 ; P-521 multicodec prefix
+es512-hash-algorithm = 0x13 ; SHA2-512
+sig-bytes = 128(OCTET)
+```
+
+| Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
+|------------------------|-------------|-----------------|------------------------------|
+| `es512-varsig-header`  | `0x1202`    | `0x8224`        | P-521 [multicodec] prefix    |
+| `es512-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix |
+
+
+## 4.2 Ethereum Signatures
+
+Ethereum has mutliple signature formats. The most common of these is [EIP-191].
+
+### 4.2.1 [EIP-191]
+
+``` abnf
+eip191-varsig = eip191-varsig-header eip191-version sig-bytes
+eip191-varsig-header = 0xe191 
+eip191-version = unsigned-varint
+sig-bytes = 64(OCTET)
+```
+
+| Segment                 | Hexadecimal            | Unsigned Varint        | Comment                        | 
+|-------------------------|------------------------|------------------------|--------------------------------|
+| `eip191-varsig-header`  | `0xe191`               | `0xe191`               | secp256k1 [multicodec] prefix  |
+| `eip191-version`        | `0x00`, `0x01`, `0x45` | `0x00`, `0x01`, `0x45` | EIP-191 Version                |
 
 # 5 Further Reading
 
@@ -324,6 +359,7 @@ sig-bytes = 64(OCTET)
 [CAR]: https://ipld.io/specs/transport/car/
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
 [DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
+[EIP-191]: https://eips.ethereum.org/EIPS/eip-191
 [IPLD Data Model]: https://ipld.io/docs/data-model/kinds/
 [IPLD]: https://ipld.io/docs/
 [Multicodec]: https://github.com/multiformats/multicodec
