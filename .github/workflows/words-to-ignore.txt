@@ -9,7 +9,9 @@ DAG-PB
 DIDs
 DKIM
 ECDSA
+EIP
 EdDSA
+Ethereum
 Gozalishvili
 HMAC
 IPFS

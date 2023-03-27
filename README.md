@@ -333,7 +333,7 @@ sig-bytes = 128(OCTET)
 
 ## 4.2 Ethereum Signatures
 
-Ethereum has mutliple signature formats. The most common of these is [EIP-191].
+Ethereum has multiple signature formats. The most common of these is [EIP-191].
 
 ### 4.2.1 [EIP-191]
 
