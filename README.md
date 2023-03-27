@@ -344,10 +344,10 @@ eip191-version = unsigned-varint
 sig-bytes = 64(OCTET)
 ```
 
-| Segment                 | Hexadecimal            | Unsigned Varint        | Comment                        | 
-|-------------------------|------------------------|------------------------|--------------------------------|
-| `eip191-varsig-header`  | `0xe191`               | `0xe191`               | secp256k1 [multicodec] prefix  |
-| `eip191-version`        | `0x00`, `0x01`, `0x45` | `0x00`, `0x01`, `0x45` | EIP-191 Version                |
+| Segment                 | Hexadecimal            | Unsigned Varint        | Comment           | 
+|-------------------------|------------------------|------------------------|-------------------|
+| `eip191-varsig-header`  | `0xe191`               | `0x91c303`             | [EIP-191] prefix  |
+| `eip191-version`        | `0x00`, `0x01`, `0x45` | `0x00`, `0x01`, `0x45` | [EIP-191] version |
 
 # 5 Further Reading
 
