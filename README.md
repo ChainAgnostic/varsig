@@ -44,7 +44,7 @@ const payload = canonicalize({"hello": "world", "count": 42})
 {payload: payload, sig: key.sign(sha256(payload))}
 ```
 
-Directly signing over canonicalized data introduces new problems: forced encoding and canonicalization attacks. By taking advantage of existing IPLD canonicalization, varsig aims to alleviate both.
+Directly signing over canonicalized data introduces new problems: forced encoding and canonicalization attacks.
 
 ## 1.1 Forced Encoding
 
