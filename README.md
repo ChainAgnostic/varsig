@@ -97,7 +97,7 @@ The above can be [quite subtle][PKI Layer Cake]. Here is a step by step example 
 An application receives some block of data, as binary. It checks the claimed CID, which validates.
 
 ```
-0x7ba202022726f6c65223a202275736572222ca202022726f6c65223a202261646d696e222ca2020226c696e6b73223a205ba202020207b222f223a20226261666b72656964623271336b7467746c6d3579696f3762756a337379707967686a7466683565726e737465716d616b66347032633562776d7969227d2c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207b222f223a20226261666b72656963373579646735766b773332346f716b636d716c74667663336b6976796e67716b69626a6f7973647769696c616b68347a356665227d2ca202020207b222f223a20226261666b726569666664697a3672616634367a727233623275737566677a35666f34346167676d6f637a347a61707072366b6868686c6a63647079227da20205d2ca202022736967223a2022387566615339773343474e386362515455536f4c31693765614b69574c53587344324c625a566d764d397a4622a7d
+%x7ba202022726f6c65223a202275736572222ca202022726f6c65223a202261646d696e222ca2020226c696e6b73223a205ba202020207b222f223a20226261666b72656964623271336b7467746c6d3579696f3762756a337379707967686a7466683565726e737465716d616b66347032633562776d7969227d2c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207b222f223a20226261666b72656963373579646735766b773332346f716b636d716c74667663336b6976796e67716b69626a6f7973647769696c616b68347a356665227d2ca202020207b222f223a20226261666b726569666664697a3672616634367a727233623275737566677a35666f34346167676d6f637a347a61707072366b6868686c6a63647079227da20205d2ca202022736967223a2022387566615339773343474e386362515455536f4c31693765614b69574c53587344324c625a566d764d397a4622a7d
 ```
 
 Decoded to a string, the above reads as follows:
@@ -147,9 +147,9 @@ Ipld::Assoc([
     (
         "sig",
         Ipld::Binary([
-            0xf2, 0xe7, 0xda, 0x4b, 0xdc, 0x37, 0x08, 0x63, 0x7c, 0x71, 0xb4, 0x13, 0x51, 0x2a,
-            0x0b, 0xd6, 0x2e, 0xde, 0x68, 0xa8, 0x96, 0x2d, 0x25, 0xec, 0x0f, 0x62, 0xdb, 0x65,
-            0x59, 0xaf, 0x33, 0xdc, 0xc5,
+            %xf2, %xe7, %xda, %x4b, %xdc, %x37, %x08, %x63, %x7c, %x71, %xb4, %x13, %x51, %x2a,
+            %x0b, %xd6, %x2e, %xde, %x68, %xa8, %x96, %x2d, %x25, %xec, %x0f, %x62, %xdb, %x65,
+            %x59, %xaf, %x33, %xdc, %xc5,
         ]),
     ),
 ]);
@@ -202,7 +202,7 @@ Signing CIDs has two additional caching effects
 
 ## 2.2 Raw (Noncanonicalized) Data
 
-Canonicalization is not required if data is encoded as raw bytes (multicodec `0x55`). The exact bytes are already present, and MUST not be changed.
+Canonicalization is not required if data is encoded as raw bytes (multicodec `%x55`). The exact bytes are already present, and MUST not be changed.
 
 # 3 Varsig Format
 
@@ -217,11 +217,11 @@ varsig-body = *OCTET; Zero or more segments required by the kind of varsig (e.g.
 
 For example, here is an EdDSA signature for some content encoded as DAG-PB:
 
-`0x34ed01ae3784f03f9ee1163382fa6efa73b0c31ecf58c899c836709303ba4621d1e6df20e09aaa568914290b7ea124f5b38e70b9b69c7de0d216880eac885edd41c302`
+`%x34ed01ae3784f03f9ee1163382fa6efa73b0c31ecf58c899c836709303ba4621d1e6df20e09aaa568914290b7ea124f5b38e70b9b69c7de0d216880eac885edd41c302`
 
 ### 3.1 Varsig Prefix
 
-The varsig prefix MUST be `0x34`.
+The varsig prefix MUST be `%x34`.
 
 ### 3.2 Signature Header
 
@@ -229,62 +229,117 @@ The prefix of the signature algorithm. This is often the [multicodec] of the ass
 
 ### 3.3 Varsig Body
 
-The varsig body MUST consist of zero or more segments, and MUST be defined by the signature algorithm.
+The varsig body MUST consist of one or more segments, and MUST be defined by the signature algorithm.
 
 Some examples include:
 
 * Raw signature bytes only
 * CID of [DKIM] certification transparency record, and raw signature bytes
-* Hash algorithm multicodec prefix, signature counter, HMAC, and raw signature bytes
+* Hash algorithm multicodec prefix, data encoding prefix, signature counter, nonce, HMAC, and raw signature bytes
 
-# 4 Registry of Common Signature Algorithms
+# 4 Payload Encoding
+
+The [IPLD] data model is encoding agnostic by design. This is very convenient in many applications, such as making for very convenient conversions between types for transmission versus encoding. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data.
+
+To facilitate this, the type `encoding-info` MAY be used:
+
+``` abnf
+encoding-info
+  = %x55   ; Raw bytes multicodec prefix
+  / %x70   ; DAG-PB multicodec prefix
+  / %x71   ; DAG-CBOR multicodec prefix
+  / %x0129 ; DAG-JSON multicodec prefix
+  / %x6A77 ; JWT
+  / %xE191 eip-191-body encoding-info ; EIP-191
+  
+eip-191-body 
+  = %x00 eth-validator-address 
+  / %x01 
+  / %x45 message-byte-length ; versions & payloads
+
+eth-validator-address = 20(OCTET)
+message-byte-length = unsigned-varint
+```
+
+To manage this, it is RECOMMENDED that varsig types include a nested encoding multiformat. For example, here's an RS256 signature over some DAG-CBOR:
+
+``` abnf
+;    RSA     256-bytes      sig-bytes
+;     |           |            |
+;     v           v            v
+%x34 %x1205 %x12 %x0100 %x71 *OCTET
+; ^          ^           ^
+; |          |           |
+;varsig   SHA-256     DAG-CBOR
+```
+
+And another showing data signed with [EIP-191]:
+
+``` abnf
+; secp256k1  EIP-191 message-length  sig-bytes
+;     |         |           |           |
+;     v         v           v           V
+%x34 %xE7 %x1B %xE191 %x45 %x0100 64(OCTET)
+; ^        ^           ^
+; |        |           |
+;varsig keccak-256 "Ethereum signed message"
+```
+
+Note that in the above examples, more nested information MAY be nested inside the encoding info section, depending on the definition of the encoding info.
+
+# 5 Registry of Common Signature Algorithms
 
 Below are a few common signature headers and their fields.
 
-## 4.1 RSA
+## 5.1 RSA
 
 RSASSA-PKCS #1 v1.5 signatures MUST include the following segments:
 
 ``` abnf
-rsa-varsig = rsa-varsig-header rsa-hash-algorithm signature-byte-length sig-bytes
-rsa-varsig-header = 0x1205 ; RSASSA-PKCS #1 v1.5
+rsa-varsig = rsa-varsig-header rsa-hash-algorithm signature-byte-length encoding-info sig-bytes
+
+rsa-varsig-header = %x1205 ; RSASSA-PKCS #1 v1.5
 rsa-hash-algorithm = unsigned-varint
 signature-byte-length = unsigned-varint
+encoding-info = 1*unsigned-varint ; Number of segments defined by the encoding header
 sig-bytes = *OCTET
 ```
 
-### 4.1.1 Example: RS256
+### 5.1.1 Example: RS256
 
 | Segment              | Hexadecimal | Unsigned Varint | Comment                                 | 
 |----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-varsig-header`  | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
-| `rsa-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix            |
+| `rsa-varsig-header`  | `%x1205`    | `%x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-hash-algorithm` | `%x12`      | `%x12`          | SHA2-256 [multicodec] prefix            |
 
-### 4.1.3 Example: RS512
+### 5.1.3 Example: RS512
 
 | Segment              | Hexadecimal | Unsigned Varint | Comment                                 | 
 |----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-varsig-header`  | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
-| `rsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix            |
+| `rsa-varsig-header`  | `%x1205`    | `%x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-hash-algorithm` | `%x13`      | `%x13`          | SHA2-512 [multicodec] prefix            |
 
-## 4.2 Ed25519
+## 5.2 Ed25519
 
 ``` abnf
-ed25519-varsig = ed25519-varsig-header sig-bytes
-ed25519-varsig-header = 0xed ; Ed25519 multicodec prefix
+ed25519-varsig = ed25519-varsig-header encoding-info sig-bytes
+
+ed25519-varsig-header = %xED ; Ed25519 multicodec prefix
+encoding-info = 1*unsigned-varint
 sig-bytes = 32(OCTET)
 ```
 
 | Segment                 | Hexadecimal | Unsigned Varint | Comment                         | 
 |-------------------------|-------------|-----------------|---------------------------------|
-| `ed25519-varsig-header` | `0xed`      | `0xed01`        | Ed25519 key [multicodec] prefix |
+| `ed25519-varsig-header` | `%xED`      | `%xED01`        | Ed25519 key [multicodec] prefix |
 
-## 4.3 ECDSA
+## 5.3 ECDSA
 
 ECDSA defines a general mechanism over many elliptic curves. 
 
 ``` abnf
-ecdsa-varsig = ecdsa-varsig-header
+ecdsa-varsig = ecdsa-varsig-header ecdsa-hash-algorithm encoding-info sig-bytes
+
 ecdsa-varsig-header = unsigned-varint
 ecdsa-hash-algorithm = unsigned-varint
 sig-bytes = *OCTET
@@ -292,78 +347,64 @@ sig-bytes = *OCTET
 
 Here are a few examples encoded as varsig:
 
-### 4.3.1 Example: ES256
+### 5.3.1 Example: ES256
 
 ``` abnf
-es256-varsig = es256-varsig-header es256-hash-algorithm sig-bytes
-es256-varsig-header = 0x1200 ; P-256 multicodec prefix
-es256-hash-algorithm = 0x12 ; SHA2-256
+es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info sig-bytes
+
+es256-varsig-header = %x1200 ; P-256 multicodec prefix
+es256-hash-algorithm = %x12 ; SHA2-256
 sig-bytes = 64(OCTET)
 ```
 
 | Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
 |------------------------|-------------|-----------------|------------------------------|
-| `es256-varsig-header`  | `0x1200`    | `0x8024`        | P-256 [multicodec] prefix    |
-| `es256-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix |
+| `es256-varsig-header`  | `%x1200`    | `%x8024`        | P-256 [multicodec] prefix    |
+| `es256-hash-algorithm` | `%x12`      | `%x12`          | SHA2-256 [multicodec] prefix |
 
-### 4.3.2 Example: ES256K
+### 5.3.2 Example: ES256K
 
 ``` abnf
-es256k-varsig = es256k-varsig-header es256k-hash-algorithm sig-bytes
-es256k-varsig-header = 0xe7 ; secp256k1 multicodec prefix
-es256k-hash-algorithm = 0x12 ; SHA2-256
+es256k-varsig = es256k-varsig-header es256k-hash-algorithm encoding-info sig-bytes
+
+es256k-varsig-header = %xe7 ; secp256k1 multicodec prefix
+es256k-hash-algorithm = %x12 ; SHA2-256
 sig-bytes = 64(OCTET)
 ```
 
 | Segment                 | Hexadecimal | Unsigned Varint | Comment                        | 
 |-------------------------|-------------|-----------------|--------------------------------|
-| `es256k-varsig-header`  | `0xe7`      | `0xe701`        | secp256k1 [multicodec] prefix  |
-| `es256k-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix   |
+| `es256k-varsig-header`  | `%xE7`      | `%xE701`        | secp256k1 [multicodec] prefix  |
+| `es256k-hash-algorithm` | `%x12`      | `%x12`          | SHA2-256 [multicodec] prefix   |
 
-### 4.3.3 Example: ES512
+### 5.3.3 Example: ES512
 
 ``` abnf
-es512-varsig = es512-varsig-header es512-hash-algorithm sig-bytes
-es512-varsig-header = 0x1202 ; P-521 multicodec prefix
-es512-hash-algorithm = 0x13 ; SHA2-512
+es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info sig-bytes
+
+es512-varsig-header = %x1202 ; P-521 multicodec prefix
+es512-hash-algorithm = %x13 ; SHA2-512
 sig-bytes = 128(OCTET)
 ```
 
 | Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
 |------------------------|-------------|-----------------|------------------------------|
-| `es512-varsig-header`  | `0x1202`    | `0x8224`        | P-521 [multicodec] prefix    |
-| `es512-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix |
+| `es512-varsig-header`  | `%x1202`    | `%x8224`        | P-521 [multicodec] prefix    |
+| `es512-hash-algorithm` | `%x13`      | `%x13`          | SHA2-512 [multicodec] prefix |
 
+# 6 Further Reading
 
-## 4.2 Ethereum Signatures
-
-Ethereum has multiple signature formats. The most common of these is [EIP-191].
-
-### 4.2.1 [EIP-191]
-
-``` abnf
-eip191-varsig = eip191-varsig-header eip191-version sig-bytes
-eip191-varsig-header = 0xe191 
-eip191-version = unsigned-varint
-sig-bytes = 64(OCTET)
-```
-
-| Segment                 | Hexadecimal            | Unsigned Varint        | Comment           | 
-|-------------------------|------------------------|------------------------|-------------------|
-| `eip191-varsig-header`  | `0xe191`               | `0x91c303`             | [EIP-191] prefix  |
-| `eip191-version`        | `0x00`, `0x01`, `0x45` | `0x00`, `0x01`, `0x45` | [EIP-191] version |
-
-# 5 Further Reading
-
-* [Canonicalization Attacks Against MACs and Signatures](https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/)
-* [How (not) to sign a JSON object](https://latacora.micro.blog/2019/07/24/how-not-to.html)
-* [A Taxonomy of Attacks against XML Digital Signatures & Encryption](https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf)
+* [Canonicalization Attacks Against MACs and Signatures][canonicalization attacks]
+* [How (not) to sign a JSON object]
+* [A Taxonomy of Attacks against XML Digital Signatures & Encryption][Taxonomy of Attacks]
 * [PKI Layer Cake]
 
+[Taxonomy of Attacks]: https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
 [CAR]: https://ipld.io/specs/transport/car/
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
 [DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
 [EIP-191]: https://eips.ethereum.org/EIPS/eip-191
+[How (not) to sign a JSON object]: https://latacora.micro.blog/2019/07/24/how-not-to.html
 [IPLD Data Model]: https://ipld.io/docs/data-model/kinds/
 [IPLD]: https://ipld.io/docs/
 [Multicodec]: https://github.com/multiformats/multicodec
@@ -377,4 +418,3 @@ sig-bytes = 64(OCTET)
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
- 
