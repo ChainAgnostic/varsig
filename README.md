@@ -261,13 +261,13 @@ eth-validator-address = 20(OCTET)
 message-byte-length = unsigned-varint
 ```
 
-To manage this, it is RECOMMENDED that varsig types include a nested encoding multiformat. For example, here's an RS256 signature over some DAG-CBOR:
+To manage this, it is RECOMMENDED that varsig types include a nested encoding multiformat. For example, here's a 2048-bit RS256 signature over some DAG-CBOR:
 
 ``` abnf
-;    RSA     256-bytes      sig-bytes
-;     |           |            |
-;     v           v            v
-%x34 %x1205 %x12 %x0100 %x71 *OCTET
+;    RSA       256-bytes       sig-bytes
+;     |           |               |
+;     v           v               v
+%x34 %x1205 %x12 %x0100 %x71 256(OCTET)
 ; ^          ^           ^
 ; |          |           |
 ;varsig   SHA-256     DAG-CBOR
