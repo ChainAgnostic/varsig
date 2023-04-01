@@ -250,14 +250,8 @@ encoding-info
   / %x71   ; DAG-CBOR multicodec prefix
   / %x0129 ; DAG-JSON multicodec prefix
   / %x6A77 ; JWT
-  / %xE191 eip-191-body encoding-info ; EIP-191
+  / %xE191 message-byte-length encoding-info ; EIP-191
   
-eip-191-body 
-  = %x00 eth-validator-address 
-  / %x01 
-  / %x45 message-byte-length ; versions & payloads
-
-eth-validator-address = 20(OCTET)
 message-byte-length = unsigned-varint
 ```
 
@@ -342,6 +336,7 @@ ecdsa-varsig = ecdsa-varsig-header ecdsa-hash-algorithm encoding-info sig-bytes
 
 ecdsa-varsig-header = unsigned-varint
 ecdsa-hash-algorithm = unsigned-varint
+encoding-info = 1*unsigned-varint
 sig-bytes = *OCTET
 ```
 
@@ -354,6 +349,7 @@ es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info sig-bytes
 
 es256-varsig-header = %x1200 ; P-256 multicodec prefix
 es256-hash-algorithm = %x12 ; SHA2-256
+encoding-info = 1*unsigned-varint
 sig-bytes = 64(OCTET)
 ```
 
@@ -369,6 +365,7 @@ es256k-varsig = es256k-varsig-header es256k-hash-algorithm encoding-info sig-byt
 
 es256k-varsig-header = %xe7 ; secp256k1 multicodec prefix
 es256k-hash-algorithm = %x12 ; SHA2-256
+encoding-info = 1*unsigned-varint
 sig-bytes = 64(OCTET)
 ```
 
@@ -384,6 +381,7 @@ es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info sig-bytes
 
 es512-varsig-header = %x1202 ; P-521 multicodec prefix
 es512-hash-algorithm = %x13 ; SHA2-512
+encoding-info = 1*unsigned-varint
 sig-bytes = 128(OCTET)
 ```
 
