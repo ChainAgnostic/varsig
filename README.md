@@ -250,7 +250,7 @@ encoding-info
   / %x71   ; DAG-CBOR multicodec prefix
   / %x0129 ; DAG-JSON multicodec prefix
   / %x6A77 ; JWT
-  / %xE191 message-byte-length encoding-info ; EIP-191
+  / %xE191 encoding-info ; EIP-191
   
 message-byte-length = unsigned-varint
 ```
