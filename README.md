@@ -245,13 +245,13 @@ To facilitate this, the type `encoding-info` MAY be used:
 
 ``` abnf
 encoding-info
-  = %x5F   ; Single verbatim payload
+  = %x5F   ; Single verbatim payload (without key)
   / %x70   ; DAG-PB multicodec prefix
   / %x71   ; DAG-CBOR multicodec prefix
   / %x0129 ; DAG-JSON multicodec prefix
   / %x6A77 ; JWT
   / %xCAC0 cacao-encoding ; CACAO
-  / %xE191 encoding-info ; EIP-191
+  / %xE191 encoding-info  ; EIP-191
   
 message-byte-length = unsigned-varint
 
@@ -276,10 +276,10 @@ To manage this, it is RECOMMENDED that varsig types include a nested encoding mu
 And another showing data signed with [EIP-191]:
 
 ``` abnf
-; secp256k1  EIP-191 message-length  sig-bytes
-;     |         |           |           |
-;     v         v           v           V
-%x34 %xE7 %x1B %xE191 %x45 %x0100 64(OCTET)
+; secp256k1  EIP-191      sig-bytes
+;     |         |            |
+;     v         v            V
+%x34 %xE7 %x1B %xE191 %x45 64(OCTET)
 ; ^        ^           ^
 ; |        |           |
 ;varsig keccak-256 "Ethereum signed message"
