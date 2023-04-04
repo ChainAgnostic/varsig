@@ -245,14 +245,20 @@ To facilitate this, the type `encoding-info` MAY be used:
 
 ``` abnf
 encoding-info
-  = %x55   ; Raw bytes multicodec prefix
+  = %x5F   ; Single verbatim payload
   / %x70   ; DAG-PB multicodec prefix
   / %x71   ; DAG-CBOR multicodec prefix
   / %x0129 ; DAG-JSON multicodec prefix
   / %x6A77 ; JWT
+  / %xCAC0 cacao-encoding ; CACAO
   / %xE191 encoding-info ; EIP-191
   
 message-byte-length = unsigned-varint
+
+cacao-encoding 
+  = %x3C ; ReCap 
+  / %x51 ; SIWE 
+  / %xCA ; UCAN
 ```
 
 To manage this, it is RECOMMENDED that varsig types include a nested encoding multiformat. For example, here's a 2048-bit RS256 signature over some DAG-CBOR:
