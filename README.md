@@ -279,7 +279,7 @@ And another showing data signed with [EIP-191]:
 ; secp256k1  EIP-191      sig-bytes
 ;     |         |            |
 ;     v         v            V
-%x34 %xE7 %x1B %xE191 %x45 64(OCTET)
+%x34 %xE7 %x1B %xE191 64(OCTET)
 ; ^        ^           ^
 ; |        |           |
 ;varsig keccak-256 "Ethereum signed message"
