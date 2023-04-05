@@ -270,13 +270,13 @@ To manage this, it is RECOMMENDED that varsig types include a nested encoding mu
 And another showing data signed with [EIP-191]:
 
 ``` abnf
-; secp256k1  EIP-191      sig-bytes
-;     |         |            |
-;     v         v            V
+; secp256k1  EIP-191
+;     |         |
+;     v         v
 %x34 %xE7 %x1B %xE191 64(OCTET)
-; ^        ^           ^
-; |        |           |
-;varsig keccak-256 "Ethereum signed message"
+; ^        ^            ^
+; |        |            |
+;varsig keccak-256   sig-bytes
 ```
 
 Note that in the above examples, more nested information MAY be nested inside the encoding info section, depending on the definition of the encoding info.
