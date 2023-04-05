@@ -191,14 +191,14 @@ As it is critical for guarding against various attacks, the assumptions around c
 
 ## 2.1 Signing CIDs
 
-Rather than validating the inline IPLD, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
+Rather than validating the inline IPLD, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it is impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
 
 ### 2.1.1 Caching & Invalidation
 
-Signing CIDs has two additional caching effects
+Signing CIDs has two additional caching consequences:
 
-* Signing CIDs enables a simple strategy for caching validation by CID
-* Such a strategy also requires accounting for revocation of the signing keys, and so need to be tagged with this additional metadata
+1. Signing CIDs enables a simple strategy for caching validation by CID.
+2. Such a strategy also MAY require accounting for revocation of the signing keys themselves. In this case, the cache would need to include additional information about the signing key.
 
 ## 2.2 Raw (Noncanonicalized) Data
 
