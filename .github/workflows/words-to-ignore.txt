@@ -1,4 +1,9 @@
 Acknowledgements
+CAIPs
+CAIP
+CAN
+CANs
+CASA
 CIDs
 CTF
 Canonicalization
@@ -27,6 +32,7 @@ Krüger
 LEB
 MACs
 Multibase
+Namespaces
 Noncanonicalized
 PKI
 Parsers
@@ -51,6 +57,7 @@ Wasm
 Zelenka
 auth
 backend
+bip
 bytesprefix
 bytestring
 canonicalization
@@ -64,11 +71,13 @@ desireable
 dholms
 encodings
 expede
+fn
 inlined
 interpretable
 multicodec
 multiformat
 multihash
+namespace
 namespaced
 oed
 pre-signature
