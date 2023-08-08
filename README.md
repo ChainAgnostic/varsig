@@ -390,6 +390,28 @@ sig-bytes = 128(OCTET)
 | `es512-varsig-header`  | `%x1202`    | `%x8224`        | P-521 [multicodec] prefix    |
 | `es512-hash-algorithm` | `%x13`      | `%x13`          | SHA2-512 [multicodec] prefix |
 
+### 5.3.4 Example: Webauthn
+
+``` abnf
+webauthn-varsig = webauthn-varsig-header client-data-json authenticator-data-json sig-bytes
+
+webauthn-varsig-header = TODO
+client-data-json = JSON
+authenticator-data-length = 1*unsigned-varint
+authenticator-data = OCTET
+sig-bytes = OCTET
+```
+
+The Webauthn varsig header notifies the consumer that the signature is generated via webauthn. Verification must therefor rely on the [`client-data-json`][Webauthn Client Data JSON] JSON object and the [`authenticator-data`][Webauthn Authenticator Data] bytestring. The `client-data-json` object is self-describing and thus does not need to have a length prefix, however it must include the required fields as specified by the Webauthn spec. The `authenticator-data` can vary in length but must have at least 37 bytes, and so requires the `authenticator-data-length` varint to specify it's length. The length of `sig-bytes` can be known via the [`attestedCredentialData`][Webauthn Attested Credential Data] portian of the [`authenticator-data`][Webauthn Authenticator Data] byte string. In order to keep the varsig verifiable and concise, the signed payload MUST be included via CID as the `challenge` field of the [`client-data-json`][Webauthn Client Data JSON].
+
+Verification of this varsig follows these steps:
+1. extraction of the `client-data-json` and `authenticator-data` from the varsig.
+2. extraction of a CID from `client-data-json`
+3. matching of the extracted CID with the signed-over payload
+4. extraction of the credential public key from the [`attestedCredentialData`][Webauthn Attested Credential Data] in `authenticator-data`.
+5. `sha256` hashing of `client-data-json` and concatenation with the [`authenticator-data`][Webauthn Authenticator Data] (i.e. `concat(authenticator-data, sha256(client-data-json))`), according to the process defined as [Webauthn Signature Creation][Webauthn Signature Creation]
+6. verification of the `sig-bytes` with the credential public key and the byte string resulting from step 5, according to the public key type specified by the credential public key object.
+
 # 6 Further Reading
 
 * [Canonicalization Attacks Against MACs and Signatures][canonicalization attacks]
@@ -416,3 +438,7 @@ sig-bytes = 128(OCTET)
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
+[Webauthn Client Data JSON]: https://w3c.github.io/webauthn/#dictionary-client-data
+[Webauthn Authenticator Data]: https://w3c.github.io/webauthn/#sctn-authenticator-data
+[Webauthn Signature Creation]: https://w3c.github.io/webauthn/#fig-signature
+[Webauthn Attested Credential Data]: https://w3c.github.io/webauthn/#sctn-attested-credential-data
