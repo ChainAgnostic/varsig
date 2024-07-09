@@ -320,7 +320,7 @@ ed25519-varsig = ed25519-varsig-header encoding-info sig-bytes
 
 ed25519-varsig-header = %xED ; Ed25519 multicodec prefix
 encoding-info = 1*unsigned-varint
-sig-bytes = 32(OCTET)
+sig-bytes = 64(OCTET)
 ```
 
 | Segment                 | Hexadecimal | Unsigned Varint | Comment                         | 
