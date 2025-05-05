@@ -382,7 +382,7 @@ es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info sig-bytes
 es512-varsig-header = %x1202 ; P-521 multicodec prefix
 es512-hash-algorithm = %x13 ; SHA2-512
 encoding-info = 1*unsigned-varint
-sig-bytes = 128(OCTET)
+sig-bytes = 132(OCTET)
 ```
 
 | Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
