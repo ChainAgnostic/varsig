@@ -390,6 +390,31 @@ sig-bytes = 132(OCTET)
 | `es512-varsig-header`  | `%x1202`    | `%x8224`        | P-521 [multicodec] prefix    |
 | `es512-hash-algorithm` | `%x13`      | `%x13`          | SHA2-512 [multicodec] prefix |
 
+### 5.3.4 Example: Webauthn
+
+``` abnf
+webauthn-varsig = webauthn-varsig-header client-data-length client-data-json authenticator-data-length authenticator-data signature
+
+webauthn-varsig-header = TODO
+client-data-length = 1*unsigned-varint
+client-data-json = *OCTET
+authenticator-data-length = 1*unsigned-varint
+authenticator-data = *OCTET
+signature = varsig-body
+```
+
+The Webauthn varsig header notifies the consumer that the signature is generated via webauthn. Verification must therefor rely on the [`client-data-json`][Webauthn Client Data JSON] JSON object and the [`authenticator-data`][Webauthn Authenticator Data] bytestring. The `client-data-json` and `authenticator-data` byte strings must conform to the formats specified by the Webauthn spec. To enable the inclusion of the varsig in a byte stream, they each require a varint-encoded length prefix (`client-data-length` and `authenticator-data-length` respectively).
+
+The signature itself is encoded as a varsig-body, containing hash and encoding info in the `signature` field. For example, a webauthn authenticator using `P-256` keys would result in a `signature` field which is a varsig-body conforming to the [`ES256` varsig body defined in section 5.3.1](#5.3.1-example:-es256). The signed payload is included in the signed data as the `challenge` field of the `client-data-json` as a [Multihash][Multihash]. This multihash MUST be made using the result of encoding the payload according to the parameters defined by the `signature` varsig body (for example, a DAG-CBOR encoded payload must have `signature.encoding-info` set to match). The `signature` field MUST be a signature type supported by the WebAuthn specification.
+
+Verification of this varsig follows these steps:
+1. extraction of the `client-data-json` and `authenticator-data` from the varsig.
+2. parse `client-data-json` as `cData`
+3. extraction of the payload multihash from `cData.challenge` as `payloadHash`
+4. parse `signature` as a varsig body
+5. ensure that the extracted multihash matches the result of encoding the payload according to `signature.encoding-info` and hashing it with the hash function defined by `payloadHash.code`
+6. verify the `signature` using the concatenation of `authenticator-data` and `sha2_256(client-data-json)` as the payload bytes (as defined by [WebAuthn signature creation][Webauthn Signature Creation])
+
 # 6 Further Reading
 
 * [Canonicalization Attacks Against MACs and Signatures][canonicalization attacks]
@@ -407,6 +432,7 @@ sig-bytes = 132(OCTET)
 [IPLD]: https://ipld.io/docs/
 [Multicodec]: https://github.com/multiformats/multicodec
 [Multiformats]: https://multiformats.io
+[Multihash]: https://multiformats.io/multihash/
 [PKI Layer Cake]: https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22
 [Parse Don't Validate]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
@@ -416,3 +442,7 @@ sig-bytes = 132(OCTET)
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
+[Webauthn Client Data JSON]: https://w3c.github.io/webauthn/#dictionary-client-data
+[Webauthn Authenticator Data]: https://w3c.github.io/webauthn/#sctn-authenticator-data
+[Webauthn Signature Creation]: https://w3c.github.io/webauthn/#fig-signature
+[Webauthn Attested Credential Data]: https://w3c.github.io/webauthn/#sctn-attested-credential-data
