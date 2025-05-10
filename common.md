@@ -10,7 +10,7 @@ Below are a few common signature headers and their fields.
 rsa-varsig = rsa-varsig-header rsa-hash-algorithm signature-byte-length
 rsa-prefix = %x1205 ; RSASSA-PKCS #1 v1.5
 rsa-hash-algorithm = unsigned-varint
-signature-byte-length = unsigned-varint
+rsa-key-length = unsigned-varint
 ```
 
 ### Example: RS256
