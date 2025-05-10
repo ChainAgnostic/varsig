@@ -9,23 +9,25 @@ Below are a few common signature headers and their fields.
 ``` abnf
 rsa-varsig = rsa-varsig-header rsa-hash-algorithm signature-byte-length
 rsa-prefix = %x1205 ; RSASSA-PKCS #1 v1.5
-rsa-hash-algorithm = unsigned-varint
-rsa-key-length = unsigned-varint
+rsa-hash = unsigned-varint
+rsa-key-byte-length = unsigned-varint
 ```
 
 ### Example: RS256
 
 | Segment              | Hexadecimal | Unsigned Varint | Comment                                 |
 |----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-prefix`         | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-key-prefix`     | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
 | `rsa-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix            |
+| `rsa-key-length`     | `varint`    | `varint`        | Length of public key in bytes           |
 
 ### Example: RS512
 
 | Segment              | Hexadecimal | Unsigned Varint | Comment                                 |
 |----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-prefix`         | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-key-prefix`     | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
 | `rsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix            |
+| `rsa-key-length`     | `varint`    | `varint`        | Length of public key in bytes           |
 
 ## [EdDSA]
 

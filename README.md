@@ -75,7 +75,7 @@ Since IPLD is deterministically encoded, it can be tempting to rely on canonical
 }
 ```
 
-Unfortunately this opens the potential for [canonicalization attacks]. [Parsers for certain formats][Taxonomy of Attacks] — such as JSON — are known to [handle duplicate entries differently][How (not) to sign a JSON object]. IPLD MUST to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
+Unfortunately this opens the potential for [canonicalization attacks]. [Parsers for certain formats][Taxonomy of Attacks] — such as JSON — are known to [handle duplicate entries differently][How (not) to sign a JSON object]. IPLD MUST be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
 >
@@ -137,7 +137,7 @@ Decoded to a string, the above reads as follows:
 > [!NOTE]
 > The JSON above contains a duplicate `role` key.
 
-Next, the application parses the JSON with the browser's native JSON parser. Only one `role` key is possile in a JavaScript object, and which one is kept is not consisteny across implementations.
+Next, the application parses the JSON with the browser's native JSON parser. Only one `role` key is possible in a JavaScript object, and which one is kept is not consistency across implementations.
 
 ``` json
 {
