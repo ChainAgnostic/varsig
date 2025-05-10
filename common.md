@@ -38,21 +38,19 @@ eddsa-hash-algorithm = unsigned-varint
 
 ### Example: Ed25519
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                        |              |
-|------------------------|-------------|-----------------|--------------------------------|--------------|
-| `eddsa-prefix`         | `0xED`      | `0xED01`        | EdDSA prefix                   |              |
-| `eddsa-curve`          | `0xEC`      | `0xEC01`        | Curve25519 [multicodec] prefix | DOUBLE CHECK |
-| `eddsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix   |              |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                          |
+|------------------------|-------------|-----------------|----------------------------------|
+| `eddsa-prefix`         | `0xED`      | `0xED01`        | EdDSA prefix                     |
+| `eddsa-curve`          | `0xED`      | `0xEC01`        | edwards25519 [multicodec] prefix |
+| `eddsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix     |
 
 ### Example: Ed448
 
-0x1203
-
-| Segment                | Hexadecimal | Unsigned Varint | Comment                       |
-|------------------------|-------------|-----------------|-------------------------------|
-| `eddsa-prefix`         | `0xED`      | `0xED01`        | EdDSA prefix                  |
-| `eddsa-curve`          | `0x1203`    | `0x8324`        | Curve448 [multicodec] prefix  |
-| `eddsa-hash-algorithm` | `0x19`      | `0x19`          | SHAKE-256 [multicodec] prefix |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                        |
+|------------------------|-------------|-----------------|--------------------------------|
+| `eddsa-prefix`         | `0xED`      | `0xED01`        | EdDSA prefix                   |
+| `eddsa-curve`          | `0x1203`    | `0x8324`        | edwards448 [multicodec] prefix |
+| `eddsa-hash-algorithm` | `0x19`      | `0x19`          | SHAKE-256 [multicodec] prefix  |
 
 ## ECDSA
 
@@ -142,6 +140,7 @@ sig-bytes = 128(OCTET)
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
 [RFC 7519]: https://www.rfc-editor.org/rfc/rfc7519
 [RFC 8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
+[RS256]: https://datatracker.ietf.org/doc/html/rfc7518
 [RSASSA-PKCS #1 v1.5]: https://www.rfc-editor.org/rfc/rfc2313
 [Taxonomy of Attacks]: https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
 [`secp256k1`]: https://en.bitcoin.it/wiki/Secp256k1
@@ -151,4 +150,3 @@ sig-bytes = 128(OCTET)
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
-

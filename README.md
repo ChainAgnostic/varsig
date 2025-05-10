@@ -251,9 +251,9 @@ Including the varsig header in the payload that is signed over is RECOMMENDED. D
 
 ## Header
 
-A varsig header MUST metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
+A Varsig header MUST metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
 
-A varsig header MUST begin with one or more varsig segments that desicribe.....
+A Varsig header MUST begin with one or more Varsig segments that configure the signature.
 
 ```abnf
 varsig-header = %x34 signature-algorithm-metadata payload-encoding-metadata
@@ -337,10 +337,53 @@ varsig-encoding-info
 
 ## Signature Bytes
 
-The associated signature bytes MUST be represented as a byte array.
+The associated signature bytes MUST be represented as a byte array. The MAY come directly after the varsig, but use of the [Varsig Envelope] is RECOMMENDED.
 
 ``` abnf
 varsig-signature-bytes = 1*OCTET
+```
+
+# Varsig Envelope
+
+When including the payload with a Varsig, the Varsig header SHOULD sign over with the payload. Any format MAY be used (especially for compatibility with other specs like JWT), but use of the following Varsig Envelope is RECOMMENDED.
+
+| Field             | Type           | Description                                                    |
+|-------------------|----------------|----------------------------------------------------------------|
+| `.0`              | `Bytes`        | The signature bytes (signed content of the `SigPayload` field) |
+| `.1`              | `SigPayload`   | The content that was signed                                    |
+| `.1.h`            | `VarsigHeader` | The [Varsig] v1 header                                         |
+| `.1.<payload-id>` | `Payload`      | The payload                                                    |
+
+``` mermaid
+flowchart TD
+    subgraph Ucan ["Varsig Envelope"]
+        SignatureBytes["Signature (raw bytes)"]
+      
+        subgraph SigPayload ["Signature Payload"]
+            VarsigHeader["Varsig Header"]
+
+            subgraph VarsigPayload ["Varsig Payload"]
+                fields["..."]
+            end
+        end
+    end
+```
+
+The `h` field MUST remain reserved for the Varsig header. The payload MAY include any number of fields. Prefixing the user-defined portion of the payload with a schema identifier is RECOMMENDED.
+
+For example:
+
+``` js
+[
+  {"/": {"bytes": "7aEDQLYvb3lygk9yvAbk0OZD0q+iF9c3+wpZC4YlFThkiNShcVriobPFr/wl3akjM18VvIv/Zw2LtA4uUmB5m8PWEAU"}},
+  {
+    "h": {"/": {"bytes": "NBIFEgEAcQ"}},
+    "my-example-schema-id": {
+      "hello": "world"
+    },
+    "my-other-example-schema-id": 1234
+  }
+]
 ```
 
 # Acknowledgments
@@ -353,9 +396,10 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 
 <!-- Internal Links -->
 
+[Common Signature Algorithms]: #common-signature-algorithms
 [Header]: #header
 [Signature]: #signature
-[Common Signature Algorithms]: #common-signature-algorithms
+[Varsig Envelope]: #varsig-envelope
 
 <!-- External Links -->
 
@@ -389,3 +433,4 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
+[RS256]: https://datatracker.ietf.org/doc/html/rfc7518
