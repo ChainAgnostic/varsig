@@ -71,15 +71,17 @@ Here are a few examples encoded as varsig:
 
 ``` abnf
 es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info sig-bytes
-es256-prefix = %x1200 ; P-256 multicodec prefix
+es256-key = %x1200 ; P-256 multicodec prefix
+ecdsa-party-bit = %x00
 es256-hash-algorithm = %x12 ; SHA2-256
 ```
 
-| Segment                | Hexadecimal | Unsigned Varint | Comment                      |
-|------------------------|-------------|-----------------|------------------------------|
-| `ecdsa-prefix`         | `0xEC`      | `0xEC01`        | ECDSA                        |
-| `es256-prefix`         | `0x1200`    | `0x8024`        | P-256 [multicodec] prefix    |
-| `es256-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix |
+| Segment                | Hexadecimal | Unsigned Varint | Comment                                          |
+|------------------------|-------------|-----------------|--------------------------------------------------|
+| `ecdsa-prefix`         | `0xEC`      | `0xEC01`        | ECDSA                                            |
+| `es256-prefix`         | `0x1200`    | `0x8024`        | P-256 [multicodec] prefix                        |
+| `ecdsa-partity-bit`    | `0x00`      | `0x00`          | Spec-compliant ES256 does not use the parity bit |
+| `es256-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix                     |
 
 ### Example: ES256K
 
@@ -92,11 +94,12 @@ encoding-info = 1*unsigned-varint
 sig-bytes = 64(OCTET)
 ```
 
-| Segment                 | Hexadecimal | Unsigned Varint | Comment                       |
-|-------------------------|-------------|-----------------|-------------------------------|
-| `ecdsa-prefix`          | `0xEC`      | `0xEC01`        | ECDSA                         |
-| `es256k-varsig-header`  | `0xE7`      | `0xE701`        | secp256k1 [multicodec] prefix |
-| `es256k-hash-algorithm` | `0x12`      | `0x12`          | SHA2-256 [multicodec] prefix  |
+| Segment                 | Hexadecimal   | Unsigned Varint | Comment                                          |
+|-------------------------|---------------|-----------------|--------------------------------------------------|
+| `ecdsa-prefix`          | `0xEC`        | `0xEC01`        | ECDSA                                            |
+| `es256k-varsig-header`  | `0xE7`        | `0xE701`        | secp256k1 [multicodec] prefix                    |
+| `ecdsa-partity-bit`     | `0x00 | 0x01` | `0x00 | 0x01`   | ES256 often (but not always) uses the parity bit |
+| `es256k-hash-algorithm` | `0x12`        | `0x12`          | SHA2-256 [multicodec] prefix                     |
 
 ### Example: ES512
 
