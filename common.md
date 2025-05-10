@@ -61,8 +61,6 @@ ecdsa-varsig = ecdsa-varsig-header ecdsa-hash-algorithm encoding-info sig-bytes
 
 ecdsa-varsig-header = unsigned-varint
 ecdsa-hash-algorithm = unsigned-varint
-encoding-info = 1*unsigned-varint
-sig-bytes = *OCTET
 ```
 
 Here are a few examples encoded as varsig:
