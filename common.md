@@ -57,7 +57,7 @@ eddsa-hash-algorithm = unsigned-varint
 ECDSA defines a general mechanism over many elliptic curves. 
 
 ``` abnf
-ecdsa-varsig = ecdsa-varsig-header ecdsa-hash-algorithm encoding-info sig-bytes
+ecdsa-varsig = ecdsa-varsig-header ecdsa-hash-algorithm
 
 ecdsa-varsig-header = unsigned-varint
 ecdsa-hash-algorithm = unsigned-varint
