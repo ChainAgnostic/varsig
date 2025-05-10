@@ -326,7 +326,7 @@ varsig-signature-algorithm
 The [IPLD] data model is encoding agnostic by design. This is very convenient in many applications, such as making for very convenient conversions between types for transmission versus encoding. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-info` MUST be used:
 
 ``` abnf
-varsig-encoding-info
+varsig-encoding-metadata
   = %x5F                        ; Single verbatim payload (without key)
   / %x70                        ; DAG-PB multicodec prefix
   / %x71                        ; DAG-CBOR multicodec prefix
