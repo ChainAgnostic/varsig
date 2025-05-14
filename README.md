@@ -25,11 +25,9 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 # Abstract
 
-Varsig is a [multiformat][Multiformats] for describing signatures over IPLD data and raw bytes in a way that preserves information about the payload and canonicalization metadata.
+Varsig is a [multiformat][Multiformats] for compactly describing signatures over data and any codec information to serailiaze the signed data correctly.
 
 # Introduction
-
-[IPLD] is a deterministic encoding scheme for data expressed in [common types][IPLD Data Model] plus content addressed links. 
 
 Common formats such as [JWT][RFC 7519] use encoding (e.g. [base64]) and text separators (e.g. `"."`) to pass around encoded data and their signatures:
 
@@ -44,7 +42,7 @@ NZFhmcnM1NDlFZnU2cUN1NHVqRGZNY2pGUEpSIiwicHJmIjpbXX0.SjKaHG_2Ce0pjuNF5OD-b6joN1S
 IJMpjKjjl4JE61_upOrtvKoDQSxZ7WeYVAIATDl8EmcOKj9OqOSw0Vg8VCA"
 ```
 
-Many binary-as-text encodings are inefficient and inconvenient. Others have opted to use canonicalization and a tag. This can be effective, but requires careful handling and signalling of the specific canonicalization method used.
+Many binary-as-text encodings are inefficient and inconvenient. Others have opted to use canonicalization and a tag. This can be effective, but requires careful handling and signaling of the specific canonicalization method used (such as [DAG-CBOR]).
 
 ``` js
 const payload = canonicalize({"hello": "world", "count": 42})
@@ -55,13 +53,13 @@ Directly signing over canonicalized data introduces new problems: forced encodin
 
 ## Forced Encoding
 
-Data must first be rendered to binary before it is signed. This means imposing some encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a [CID]. In IPFS, CIDs imply a link, which can have implications for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed to conform to the cryptographic signature algorithm. 
+Data must first be rendered to binary before signing. This means imposing some encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a [CID]. In IPFS, CIDs imply a link, which can have implications for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed to conform to the cryptographic signature algorithm. 
 
-To remedy this, varsig includes the encoding information used in production of the signature.
+To remedy this, Varsig includes the encoding information used in production of the signature.
 
 ## Canonicalization Attacks
 
-Since IPLD is deterministically encoded, it can be tempting to rely on canonicalization at validation time, rather than rendering the IPLD to inline bytes or a CID and signing that. Since the original payload can be rederived from the output, this can seem like a clean option:
+Since formats like [IPLD] and [JCS] are deterministically encoded, it can be tempting to rely on canonicalization at validation time, rather than storing the serialized bytes. Since the original payload can be rederived from the output, this can seem like a clean option:
 
 ``` javascript
 // DAG-JSON
@@ -99,7 +97,7 @@ In the above example, the canonicalization step MAY lead to the signature passin
 
 ### Example
 
-The above can be [quite subtle][PKI Layer Cake]. Here is a step by step example of one such scenario.
+The above can be [subtle][PKI Layer Cake]. Here is a step by step example of one such scenario.
 
 An application receives some block of data, as binary. It checks the claimed CID, which passes validation.
 
@@ -154,30 +152,18 @@ Next, the application parses the JSON with the browser's native JSON parser. Onl
 }
 ```
 
-The application MUST check the signature of all fields minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal IPLD representation using Rust/Wasm.
+The application MUST check the signature of all fields minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal representation.
 
 ``` rust
-Ipld::Map([
-    Ipld::Map([
-      ("role", Ipld::String("user")),
-      (
-          "links",
-          Ipld::Array([
-              Ipld::Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
-              Ipld::Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
-              Ipld::Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
-          ]),
-      )
-    ]),
-    (
-        "sig",
-        Ipld::Binary([
-            0xf2, 0xe7, 0xda, 0x4b, 0xdc, 0x37, 0x08, 0x63, 0x7c, 0x71, 0xb4, 0x13, 0x51, 0x2a,
-            0x0b, 0xd6, 0x2e, 0xde, 0x68, 0xa8, 0x96, 0x2d, 0x25, 0xec, 0x0f, 0x62, 0xdb, 0x65,
-            0x59, 0xaf, 0x33, 0xdc, 0xc5,
-        ]),
-    ),
-])
+{
+  role: "user",
+  links: [
+    Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+    Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+    Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+  ],
+  sig: 0xf2e7da4bdc3708637c71b413512a0bd62ede68a8962d25ec0f62db6559af33dc
+}
 ```
 
 > [!NOTE]
@@ -186,26 +172,21 @@ Ipld::Map([
 The `sig` field is then removed, and the remaining fields serialized to binary;
 
 ``` rust
-serialize(
-    Ipld::Map([
-        ("role", Ipld::String("user")),
-        (
-            "links",
-            Ipld::Array([
-                Ipld::Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
-                Ipld::Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
-                Ipld::Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
-            ]),
-        )
-    ])
-).to_json()
+serialize!({
+  role: "user",
+  links: [
+    Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
+    Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+    Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+  ]
+}).to_json()
 ```
 
 The signature is then checked against the above fields, which passes since there's only a `role: "user"` entry. The application then uses the original JSON with the `role: "admin"` entry.
 
 # Safety
 
-Data already parsed to an in-memory IPLD representation can be canonically encoded trivially: it has already been through a [parser / validator][Parse Don't Validate].
+Data already parsed to an in-memory representation can be canonically encoded trivially: it has already been through a [parser / validator][Parse Don't Validate].
 
 Data purporting to conform to an IPLD encoding (such as [DAG-JSON]) MUST be validated prior to signature verification. This MAY be as simple as round-trip decoding/encoding the JSON and checking that the hash matches. A validation error MUST be signaled if it does not match.
 
@@ -217,28 +198,23 @@ As it is critical for guarding against various attacks, the assumptions around c
 
 # Format
 
-Varsig itself is 
+A Varsig MUST metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
 
-// FIXME
+Varsig itself MUST contain the following sgments:
 
-A varsig has the following main segments:
+* [Prefix]: The Varsig [multicodec] prefix `0x34`
+* [Version]: The Varsig version number `0x01`
+* [Signature Algorithm]: A signature algorithm tag and any additional fields needed to configure it
+* [Payload Encoding]: The codec used to render the payload to binary
 
-* []: binary coded signature metadata
-* [Signature]: the signature itself
 
 
+FIXME
 Signing over the header is RECOMMENDED to avoid <classes of attack>
 
 
-A Varsig MUST metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
 
 A Varsig header MUST begin with one or more Varsig segments that configure the signature.
-
-```abnf
-varsig-header = %x34 signature-algorithm-metadata payload-encoding-metadata
-signature-algorithm-metadata = unsigned-varint
-payload-encoding-metadata = unsigned-varint
-```
 
 ``` mermaid
 block-beta
@@ -252,6 +228,18 @@ block-beta
 
     style Varsig fill:none;stroke:none;
 ```
+
+<details>
+
+<summary>ABNF</summary>
+
+```abnf
+varsig-header = %x34 signature-algorithm-metadata payload-encoding-metadata
+signature-algorithm-metadata = unsigned-varint
+payload-encoding-metadata = unsigned-varint
+```
+
+</details>
 
 For example, an [RS256] signature over some [DAG-CBOR] is as follows:
  
@@ -364,11 +352,11 @@ Including the Varsig in the payload that is signed over is RECOMMENDED. Doing so
 
 ### Varsig Prefix
 
-The varsig prefix MUST be the [multicodec] value `0x34`.
+The Varsig prefix MUST be the [multicodec] value `0x34`.
 
 ### Version
 
-The Varsig v1 MUST include the version prefix `0x01`.
+A Varsig v1 MUST include the version prefix `0x01`.
 
 ### Signature Algorithm Metadata
 
@@ -426,17 +414,7 @@ varsig-encoding-metadata
 
 </details>
 
-## Signature Bytes
-
-The associated signature bytes MUST be represented as a byte array. The MAY come directly after the varsig, but use of the [Varsig Envelope] is RECOMMENDED.
-
-``` abnf
-varsig-signature-bytes = 1*OCTET
-```
-
 # Acknowledgments
-
-Many thanks to [Hugo Dias] for feedback on the spec and digging through other approaches to the problem.
 
 Thanks to [Michael Muré] for feedback from real-world implementation.
 
@@ -465,6 +443,7 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [IPLD Data Model]: https://ipld.io/docs/data-model/kinds/
 [IPLD]: https://ipld.io/docs/
 [Irakli Gozalishvili]: https://github.com/Gozala
+[JCS]: https://www.rfc-editor.org/rfc/rfc8785
 [JWT]: https://www.rfc-editor.org/rfc/rfc7519
 [Joel Thorstensson]: https://github.com/oed
 [Michael Muré]: https://github.com/MichaelMure
