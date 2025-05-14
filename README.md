@@ -1,4 +1,4 @@
-# Varsig Specification v0.2.0
+# Varsig Specification v1.0.0
 
 ## Editors
 
@@ -214,44 +214,22 @@ Data purporting to conform to an IPLD encoding (such as [DAG-JSON]) MUST be vali
 
 As it is critical for guarding against various attacks, the assumptions around canonical encoding MUST be enforced.
 
-## Signing CIDs
-
-Rather than validating the inline IPLD, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it is impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, storage, data availability, and networking consequences.
-
-### Caching & Invalidation
-
-Signing CIDs has two additional caching consequences:
-
-1. Signing CIDs enables a simple strategy for caching validation by CID.
-2. Such a strategy also MAY require accounting for revocation of the signing keys themselves. In this case, the cache would need to include additional information about the signing key.
-
 # Format
 
-A varsig has two main segments:
+Varsig itself is 
 
-* [Header]: binary coded signature metadata
+// FIXME
+
+A varsig has the following main segments:
+
+* []: binary coded signature metadata
 * [Signature]: the signature itself
 
-Including the varsig header in the payload that is signed over is RECOMMENDED. Doing so eliminates any ambiguity of the signed payload format and signature algorithm configuration.
 
-```
-┌───────────────────────────────────────────────────────────────────────────────────┐╔══════════════════════╗
-│                                     Payload                                       │║                      ║
-│ ╔═══════════════════════════════════════════════════════════════════════════════╗ │║                      ║
-│ ║                                Varsig Header                                  ║ │║                      ║
-│ ║ ┌───────────────┬──────────────────────────────┬────────────────────────────┐ ║ │║                      ║
-│ ║ │ Varsig Prefix │ Signature Algorithm Metadata │ Payload Encoding Metadata  │ ║ │║   Signature Bytes    ║
-│ ║ └───────────────┴──────────────────────────────┴────────────────────────────┘ ║ │║                      ║
-│ ╚═══════════════════════════════════════════════════════════════════════════════╝ │║                      ║
-│ ┌───────────────────────────────────────────────────────────────────────────────┐ │║                      ║
-│ │                              ...data to sign...                               │ │║                      ║
-│ └───────────────────────────────────────────────────────────────────────────────┘ │║                      ║
-└───────────────────────────────────────────────────────────────────────────────────┘╚══════════════════════╝
-```
+Signing over the header is RECOMMENDED to avoid <classes of attack>
 
-## Header
 
-A Varsig header MUST metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
+A Varsig MUST metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
 
 A Varsig header MUST begin with one or more Varsig segments that configure the signature.
 
@@ -261,55 +239,149 @@ signature-algorithm-metadata = unsigned-varint
 payload-encoding-metadata = unsigned-varint
 ```
 
-```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                                Varsig Header                                 │
-│ ┌───────────────┬──────────────────────────────┬───────────────────────────┐ │
-│ │ Varsig Prefix │ Signature Algorithm Metadata │ Payload Encoding Metadata │ │
-│ └───────────────┴──────────────────────────────┴───────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────────────────┘
+``` mermaid
+block-beta
+    columns 1
+
+    block
+        columns 1
+
+        Varsig
+
+        block 
+            columns 4
+
+            VarsigPrefix["Varsig Prefix\n0x34"]
+            version["Varsig Version\n0x01"]
+            SigDetails["Signature Algoithm"]
+            Encoding["Payload Encoding"]
+        end
+    end
+
+    style Varsig fill:none;stroke:none;
 ```
 
 For example, an [RS256] signature over some [DAG-CBOR] is as follows:
  
-```
-   Varisg
- Multiformat        Signature          Payload
-   Prefix           Metadata          Encoding
- ┌────┴───┐┌────────────┴───────────┐┌────┴───┐
- │        ││ ┏━━━━━━┓┏━━━━━━┓┏━━━━┓ ││ ┏━━━━┓ │
- │  0x34  ││ ┃0x1205┃┃0x0100┃┃0x12┃ ││ ┃0x71┃ │
- │        ││ ┗━━━▲━━┛┗━━━▲━━┛┗━━▲━┛ ││ ┗━━▲━┛ │
- └────────┘└─────┼───────┼──────┼───┘└────┼───┘
-                 │       │      │         │
-                RSA  256-bytes  │     DAG-CBOR
-                    (2048 bits) │
-                                │
-                            SHA2-256
+```mermaid
+block-beta
+    block:Header
+        columns 1
+    
+        vsig_header["Header"]
+    
+        block:HeaderBody
+            columns 2
+    
+            prefix["Varsig\n0x34"]
+            version["Version 1\n0x01"]
+        end
+    end
+    
+    block:Algo
+        columns 1
+    
+        algo_header["Algorithm"]
+    
+        block:AlgoBody
+            rsa["RSA\n0x1205"]
+            len["256-bytes\n0x0100"]
+            sha2_256["SHA2-256\n0x12"]
+        end
+    end
+    
+    block:Encoding
+        columns 1
+    
+        encoding_header["Payload Encoding"]
+    
+        block:EncodingBody
+            dag_cbor["DAG-CBOR\n0x71"]
+        end
+    end
+    
+    style Header fill:none;stroke:none;
+    style vsig_header fill:none;stroke:none;
+    
+    style Algo fill:none;stroke:none;
+    style algo_header fill:none;stroke:none;
+    
+    style Encoding fill:none;stroke:none;
+    style encoding_header fill:none;stroke:none;
+    
+    style prefix width:120;
+    style dag_cbor width:250;
 ```
 
 A (canonicalized) [JWT] signed with [ES256K] is as follows:
 
+```mermaid
+block-beta
+    block:Header
+        columns 1
+    
+        vsig_header["Header"]
+    
+        block:HeaderBody
+            columns 2
+    
+            prefix["Varsig\n0x34"]
+            version["Version 1\n0x01"]
+        end
+    end
+    
+    block:Algo
+        columns 1
+    
+        algo_header["Algorithm"]
+    
+        block:AlgoBody
+            ecdsa["ECDSA\n0xEC"]
+            curve["secp256r1\n0x1200"]
+            sha2_256["Keccak-256\n0x1B"]
+        end
+    end
+    
+    block:Encoding
+        columns 1
+    
+        encoding_header["Payload Encoding"]
+    
+        block:EncodingBody
+            jwt["JWT\n0x6A77"]
+        end
+    end
+    
+    style Header fill:none;stroke:none;
+    style vsig_header fill:none;stroke:none;
+    
+    style Algo fill:none;stroke:none;
+    style algo_header fill:none;stroke:none;
+    
+    style Encoding fill:none;stroke:none;
+    style encoding_header fill:none;stroke:none;
+    
+    style prefix width:170;
+    style ecdsa width:110;
+    style jwt width:350;
 ```
-    Varsig
-  Multiformat      Signature           Payload
-    Prefix         Metadata            Encoding
-  ┌────┴───┐┌───────────┴──────────┐┌─────┴────┐
-  │        ││ ┏━━━━┓┏━━━━━━┓┏━━━━┓ ││ ┏━━━━━━┓ │
-  │  0x34  ││ ┃0xEC┃┃0x1200┃┃0x1B┃ ││ ┃0x6A77┃ │
-  │        ││ ┗━━▲━┛┗━━▲━━━┛┗━━▲━┛ ││ ┗━━━▲━━┛ │
-  └────────┘└────┼─────┼───────┼───┘└─────┼────┘
-                 │     │       │          │
-               ECDSA   │   Keccak-256    JWT
-                       │
-                     P-256
-```
+
+### Signing Varsig
+
+Including the Varsig in the payload that is signed over is RECOMMENDED. Doing so eliminates any ambiguity of the signed payload format and signature algorithm configuration.
 
 ### Varsig Prefix
 
 The varsig prefix MUST be the [multicodec] value `0x34`.
 
+### Version
+
+The Varsig v1 MUST include the version prefix `0x01`.
+
 ### Signature Algorithm Metadata
+
+// FIXME FIXME FIXME
+// version segment
 
 The signature algorithm field MUST consist of one or more unsigned varint segments. The signature algorithm is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. The first segment MUST act as a discriminant for how many expected segments follow in the signature algorithm field.
 
@@ -341,49 +413,6 @@ The associated signature bytes MUST be represented as a byte array. The MAY come
 
 ``` abnf
 varsig-signature-bytes = 1*OCTET
-```
-
-# Varsig Envelope
-
-When including the payload with a Varsig, the Varsig header SHOULD sign over with the payload. Any format MAY be used (especially for compatibility with other specs like JWT), but use of the following Varsig Envelope is RECOMMENDED.
-
-| Field             | Type           | Description                                                    |
-|-------------------|----------------|----------------------------------------------------------------|
-| `.0`              | `Bytes`        | The signature bytes (signed content of the `SigPayload` field) |
-| `.1`              | `SigPayload`   | The content that was signed                                    |
-| `.1.h`            | `VarsigHeader` | The [Varsig] v1 header                                         |
-| `.1.<payload-id>` | `Payload`      | The payload                                                    |
-
-``` mermaid
-flowchart TD
-    subgraph Ucan ["Varsig Envelope"]
-        SignatureBytes["Signature (raw bytes)"]
-      
-        subgraph SigPayload ["Signature Payload"]
-            VarsigHeader["Varsig Header"]
-
-            subgraph VarsigPayload ["Varsig Payload"]
-                fields["..."]
-            end
-        end
-    end
-```
-
-The `h` field MUST remain reserved for the Varsig header. The payload MAY include any number of fields. Prefixing the user-defined portion of the payload with a schema identifier is RECOMMENDED.
-
-For example:
-
-``` js
-[
-  {"/": {"bytes": "7aEDQLYvb3lygk9yvAbk0OZD0q+iF9c3+wpZC4YlFThkiNShcVriobPFr/wl3akjM18VvIv/Zw2LtA4uUmB5m8PWEAU"}},
-  {
-    "h": {"/": {"bytes": "NBIFEgEAcQ"}},
-    "my-example-schema-id": {
-      "hello": "world"
-    },
-    "my-other-example-schema-id": 1234
-  }
-]
 ```
 
 # Acknowledgments
