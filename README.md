@@ -2,15 +2,16 @@
 
 ## Editors
 
-* [Irakli Gozalishvili](https://github.com/Gozala)
-* [Brooklyn Zelenka](https://github.com/expede/)
+* [Brooklyn Zelenka]
+* [Irakli Gozalishvili]
 
 ## Authors
 
-* [Irakli Gozalishvili](https://github.com/Gozala)
-* [Joel Thorstensson](https://github.com/oed)
-* [Quinn Wilton](https://github.com/QuinnWilton/)
-* [Brooklyn Zelenka](https://github.com/expede/)
+* [Brooklyn Zelenka]
+* [Hugo Dias]
+* [Irakli Gozalishvili]
+* [Joel Thorstensson]
+* [Quinn Wilton]
 
 ## Language
 
@@ -241,22 +242,13 @@ payload-encoding-metadata = unsigned-varint
 
 ``` mermaid
 block-beta
-    columns 1
+    columns 4
 
-    block
-        columns 1
-
-        Varsig
-
-        block 
-            columns 4
-
-            VarsigPrefix["Varsig Prefix\n0x34"]
-            version["Varsig Version\n0x01"]
-            SigDetails["Signature Algoithm"]
-            Encoding["Payload Encoding"]
-        end
-    end
+    Varsig:4
+    prefix["Varsig Prefix\n0x34"]
+    version["Version 1\n0x01"]                
+    SigDetails["Signature Algorithm"]
+    Encoding["Payload Encoding"]
 
     style Varsig fill:none;stroke:none;
 ```
@@ -273,7 +265,7 @@ block-beta
         block:HeaderBody
             columns 2
     
-            prefix["Varsig\n0x34"]
+            prefix["Varsig Prefix\n0x34"]
             version["Version 1\n0x01"]
         end
     end
@@ -325,7 +317,7 @@ block-beta
         block:HeaderBody
             columns 2
     
-            prefix["Varsig\n0x34"]
+            prefix["Varsig Prefix\n0x34"]
             version["Version 1\n0x01"]
         end
     end
@@ -385,6 +377,18 @@ The Varsig v1 MUST include the version prefix `0x01`.
 
 The signature algorithm field MUST consist of one or more unsigned varint segments. The signature algorithm is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. The first segment MUST act as a discriminant for how many expected segments follow in the signature algorithm field.
 
+
+| Prefix   | Segments                                 | Description                        |
+|----------|------------------------------------------|------------------------------------|
+| `0xB1`   | `bls-public-key-curve` `multihash`       | BLS12_381 (public key on G1 or G2) |
+| `0xEC`   | `ecdsa-curve` `recovery-bit` `multihash` | ECDSA (e.g. ES256)                 |
+| `0xED`   | `eddsa-curve` `multihash`                | EdDSA (e.g. Ed25519, Ed448)        |
+| `0x1205` | `rsa-byte-length` `multihash`            | RSASSA-PKCS #1 v1.5                |
+
+<details>
+
+<summary>ABNF</summary>
+
 ``` abnf
 varsig-signature-algorithm
   = %xB1   bls-public-key-curve        multihash-header ; BLS
@@ -393,9 +397,23 @@ varsig-signature-algorithm
   / %x1205 rsa-size                    multihash-header ; RSASSA-PKCS #1 v1.5
 ```
 
+</details>
+
+
 ### Payload Encoding Metadata
 
 The [IPLD] data model is encoding agnostic by design. This is very convenient in many applications, such as making for very convenient conversions between types for transmission versus encoding. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
+
+| Code     | Description                         |
+|----------|-------------------------------------|
+| `0x5F`   | Byte-identical payload (no encoder) |
+| `0x70`   | DAG-PB IPLD codec                   |
+| `0x71`   | DAG-CBOR IPLD codec                 |
+| `0xE191` | EIP-191 "personal sign"             |
+
+<details>
+
+<summary>ABNF</summary>
 
 ``` abnf
 varsig-encoding-metadata
@@ -403,9 +421,10 @@ varsig-encoding-metadata
   / %x70                        ; DAG-PB multicodec prefix
   / %x71                        ; DAG-CBOR multicodec prefix
   / %x0129                      ; DAG-JSON multicodec prefix
-  / %x6A77                      ; Canonicalized JWT
   / %xE191 varsig-encoding-info ; EIP-191 "personal sign"
 ```
+
+</details>
 
 ## Signature Bytes
 
@@ -432,6 +451,7 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 
 <!-- External Links -->
 
+[Brooklyn Zelenka]: https://github.com/expede/
 [CAR]: https://ipld.io/specs/transport/car/
 [CID]: https://docs.ipfs.tech/concepts/content-addressing/
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
@@ -444,15 +464,19 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [Hugo Dias]: https://github.com/hugomrdias
 [IPLD Data Model]: https://ipld.io/docs/data-model/kinds/
 [IPLD]: https://ipld.io/docs/
+[Irakli Gozalishvili]: https://github.com/Gozala
 [JWT]: https://www.rfc-editor.org/rfc/rfc7519
+[Joel Thorstensson]: https://github.com/oed
 [Michael Muré]: https://github.com/MichaelMure
 [Multicodec]: https://github.com/multiformats/multicodec
 [Multiformats]: https://multiformats.io
 [PKI Layer Cake]: https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22
 [Parse Don't Validate]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
+[Quinn Wilton]: https://github.com/QuinnWilton/
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
 [RFC 7519]: https://www.rfc-editor.org/rfc/rfc7519
 [RFC 8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
+[RS256]: https://datatracker.ietf.org/doc/html/rfc7518
 [RSASSA-PKCS #1 v1.5]: https://www.rfc-editor.org/rfc/rfc2313
 [Taxonomy of Attacks]: https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
 [`secp256k1`]: https://en.bitcoin.it/wiki/Secp256k1
@@ -462,4 +486,3 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [multicodec]: https://github.com/multiformats/multicodec
 [raw binary multicodec]: https://github.com/multiformats/multicodec/blob/master/table.csv#L40
 [unsigned varint]: https://github.com/multiformats/unsigned-varint
-[RS256]: https://datatracker.ietf.org/doc/html/rfc7518
