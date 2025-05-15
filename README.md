@@ -379,7 +379,7 @@ Canonical encodings are convenient for many applications since they allow for ef
 | `0x5F`   | `0x5F`          | Byte-identical payload (no additional encoding) |
 | `0x71`   | `0x71`          | [DAG-CBOR]                                      |
 | `0x0129` | `0xa902`        | [DAG-JSON]                                      |
-| `0xE191` | `0x91c303`      | EIP-191 "personal sign"                         |
+| `0xE191` | `0x91c303`      | [EIP-191 "personal sign"][EIP-191-ps]           |
 
 <details>
 
@@ -424,6 +424,7 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
 [DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
 [Dave Huseby]: https://github.com/dhuseby
+[EIP-191-ps]: https://eips.ethereum.org/EIPS/eip-191#version-0x45-e
 [EIP-191]: https://eips.ethereum.org/EIPS/eip-191
 [ES256K]: https://w3c-ccg.github.io/lds-ecdsa-secp256k1-2019/
 [EdDSA]: https://datatracker.ietf.org/doc/html/rfc8032
