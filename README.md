@@ -345,7 +345,7 @@ The Varsig prefix MUST be the [multicodec] value `0x34`.
 
 A Varsig v1 MUST use the `0x01` version tag.
 
-### Signature Algorithm
+## Signature Algorithm
 
 The signature algorithm field MUST consist of one or more unsigned varint ([LEB128]) segments. The first segment MUST act as a discriminant for the signature algorithm plus the number and type of the fields used to configure that signature type.
 
