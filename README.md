@@ -337,32 +337,24 @@ block-beta
     style jwt width:350;
 ```
 
-### Signing Varsig
-
-Including the Varsig in the payload that is signed over is RECOMMENDED. Doing so eliminates any ambiguity of the signed payload format and signature algorithm configuration.
-
-### Varsig Prefix
+## Varsig Multicodec Prefix
 
 The Varsig prefix MUST be the [multicodec] value `0x34`.
 
-### Version
+## Version
 
-A Varsig v1 MUST include the version prefix `0x01`.
+A Varsig v1 MUST use the `0x01` version tag.
 
-### Signature Algorithm Metadata
+### Signature Algorithm
 
-// FIXME FIXME FIXME
-// version segment
+The signature algorithm field MUST consist of one or more unsigned varint ([LEB128]) segments. The first segment MUST act as a discriminant for the signature algorithm plus the number and type of the fields used to configure that signature type.
 
-The signature algorithm field MUST consist of one or more unsigned varint segments. The signature algorithm is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. The first segment MUST act as a discriminant for how many expected segments follow in the signature algorithm field.
-
-
-| Prefix   | LEB-128 Varint | Segments                                 | Description                        |
-|----------|----------------|------------------------------------------|------------------------------------|
-| `0xB1`   | `0xB101`       | `bls-public-key-curve` `multihash`       | BLS12_381 (public key on G1 or G2) |
-| `0xEC`   | `0xEC01`       | `ecdsa-curve` `recovery-bit` `multihash` | ECDSA (e.g. ES256)                 |
-| `0xED`   | `0xED01`       | `eddsa-curve` `multihash`                | EdDSA (e.g. Ed25519, Ed448)        |
-| `0x1205` | `0x8524`       | `rsa-byte-length` `multihash`            | RSASSA-PKCS #1 v1.5                |
+| Prefix   | [LEB128] Varint | Segments                                 | Description                        |
+|----------|-----------------|------------------------------------------|------------------------------------|
+| `0xB1`   | `0xB101`        | `bls-public-key-curve` `multihash`       | BLS12_381 (public key on G1 or G2) |
+| `0xEC`   | `0xEC01`        | `ecdsa-curve` `recovery-bit` `multihash` | ECDSA (e.g. ES256)                 |
+| `0xED`   | `0xED01`        | `eddsa-curve` `multihash`                | EdDSA (e.g. Ed25519, Ed448)        |
+| `0x1205` | `0x8524`        | `rsa-byte-length` `multihash`            | RSASSA-PKCS #1 v1.5                |
 
 <details>
 
@@ -378,17 +370,16 @@ varsig-signature-algorithm
 
 </details>
 
+## Payload Encoding
 
-### Payload Encoding Metadata
+Canonical encodings are convenient for many applications since they allow for efficient storage, compact internal representations, or the conversion between formats like JSON and CBOR. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
 
-Canonical encodings are convenient in many applications since they allow for efficient storage, compact internal representations, or the conversion between formats like JSON and CBOR. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
-
-| Code     | LEB-128 Varint | Description                                     |
-|----------|----------------|-------------------------------------------------|
-| `0x71`   | `0x71`         | [DAG-CBOR]                                      |
-| `0x5F`   | `0x5F`         | Byte-identical payload (no additional encoding) |
-| `0x0129` | `0xa902`       | [DAG-JSON]                                      |
-| `0xE191` | `0x91c303`     | EIP-191 "personal sign"                         |
+| Code     | [LEB128] Varint | Description                                     |
+|----------|-----------------|-------------------------------------------------|
+| `0x71`   | `0x71`          | [DAG-CBOR]                                      |
+| `0x5F`   | `0x5F`          | Byte-identical payload (no additional encoding) |
+| `0x0129` | `0xa902`        | [DAG-JSON]                                      |
+| `0xE191` | `0x91c303`      | EIP-191 "personal sign"                         |
 
 <details>
 
@@ -406,11 +397,7 @@ varsig-encoding-metadata
 
 # Signing Over Varsig
 
-Signing over the Varsig itself (in addition to the payload) is RECOMMENDED. This prevents a few classes of attack, including 
-
-
-FIXME
-Signing over the header is RECOMMENDED to avoid <classes of attack>
+Including the Varsig in the payload that is signed over is RECOMMENDED. Doing so eliminates any ambiguity of the signed payload format and signature algorithm configuration.
 
 # Acknowledgments
 
@@ -420,10 +407,12 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 
 <!-- Internal Links -->
 
-[Common Signature Algorithms]: #common-signature-algorithms
 [Header]: #header
+[Payload Encoding]: #payload-encoding
+[Prefix]: #varsig-multicodec-prefix
+[Signature Algorithm]: #signature-algorithm
 [Signature]: #signature
-[Varsig Envelope]: #varsig-envelope
+[Version]: #version
 
 <!-- External Links -->
 
@@ -444,6 +433,7 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [JCS]: https://www.rfc-editor.org/rfc/rfc8785
 [JWT]: https://www.rfc-editor.org/rfc/rfc7519
 [Joel Thorstensson]: https://github.com/oed
+[LEB128]: https://en.wikipedia.org/wiki/LEB128
 [Michael Muré]: https://github.com/MichaelMure
 [Multicodec]: https://github.com/multiformats/multicodec
 [Multiformats]: https://multiformats.io
