@@ -86,11 +86,11 @@ es256-hash-algorithm = %x12 ; SHA2-256
 ### Example: ES256K
 
 ``` abnf
-es256k-varsig = es256k-varsig-header es256k-hash-algorithm encoding-info
-
-es256k-varsig-header = %xe7 ; secp256k1 multicodec prefix
-es256k-hash-algorithm = %x12 ; SHA2-256
-encoding-info = 1*unsigned-varint
+es256k-varsig = ecdsa-prefix ecdsa-curve ecdsa-parity-bit ecdsa-hash-algorithm
+ecdsa-prefix = %xEC ; ECDSA
+ecdsa-curve = %xe7 ; secp256k1 multicodec prefix
+ecdsa-parity-bit = %x00 / %x01
+ecdsa-hash-algorithm = %x12 ; SHA2-256
 ```
 
 | Segment                 | Hexadecimal    | Unsigned Varint | Comment                                          |
