@@ -376,8 +376,8 @@ Canonical encodings are convenient for many applications since they allow for ef
 
 | Code     | [LEB128] Varint | Description                                     |
 |----------|-----------------|-------------------------------------------------|
-| `0x71`   | `0x71`          | [DAG-CBOR]                                      |
 | `0x5F`   | `0x5F`          | Byte-identical payload (no additional encoding) |
+| `0x71`   | `0x71`          | [DAG-CBOR]                                      |
 | `0x0129` | `0xa902`        | [DAG-JSON]                                      |
 | `0xE191` | `0x91c303`      | EIP-191 "personal sign"                         |
 
@@ -387,8 +387,8 @@ Canonical encodings are convenient for many applications since they allow for ef
 
 ``` abnf
 varsig-encoding-metadata
-  = %x71                        ; DAG-CBOR multicodec prefix
-  / %x5F                        ; Byte-identical payload (no additional encoding)
+  = %x5F                        ; Byte-identical payload (no additional encoding)
+  / %x71                        ; DAG-CBOR multicodec prefix
   / %x0129                      ; DAG-JSON multicodec prefix
   / %xE191 varsig-encoding-info ; EIP-191 "personal sign"
 ```
@@ -416,9 +416,11 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 
 <!-- External Links -->
 
+[BCP 14]: https://www.rfc-editor.org/info/bcp14
 [Brooklyn Zelenka]: https://github.com/expede/
 [CAR]: https://ipld.io/specs/transport/car/
 [CID]: https://docs.ipfs.tech/concepts/content-addressing/
+[DAG-CBOR]: https://ipld.io/docs/codecs/known/dag-cbor/
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
 [DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
 [Dave Huseby]: https://github.com/dhuseby
