@@ -32,7 +32,7 @@ rsa-key-byte-length = unsigned-varint
 ## [EdDSA]
 
 ``` abnf
-eddsa-varsig = ed25519-prefix eddsa-curve eddsa-hash-algorithm
+eddsa-varsig = eddsa-prefix eddsa-curve eddsa-hash-algorithm
 eddsa-prefix = %xED
 eddsa-curve = unsigned-varint
 eddsa-hash-algorithm = unsigned-varint
