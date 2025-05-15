@@ -1,6 +1,6 @@
 # Appendix: Common Varsig Headers
 
-Below are a few common signature headers and their fields.
+Below are a few common signature headers and their fields. These are all given as the parts following the Varsig prefix and version.
 
 ## RSA
 
@@ -70,7 +70,7 @@ Here are a few examples encoded as varsig:
 ### Example: ES256
 
 ``` abnf
-es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info sig-bytes
+es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info
 es256-key = %x1200 ; P-256 multicodec prefix
 ecdsa-party-bit = %x00
 es256-hash-algorithm = %x12 ; SHA2-256
@@ -86,12 +86,11 @@ es256-hash-algorithm = %x12 ; SHA2-256
 ### Example: ES256K
 
 ``` abnf
-es256k-varsig = es256k-varsig-header es256k-hash-algorithm encoding-info sig-bytes
+es256k-varsig = es256k-varsig-header es256k-hash-algorithm encoding-info
 
 es256k-varsig-header = %xe7 ; secp256k1 multicodec prefix
 es256k-hash-algorithm = %x12 ; SHA2-256
 encoding-info = 1*unsigned-varint
-sig-bytes = 64(OCTET)
 ```
 
 | Segment                 | Hexadecimal   | Unsigned Varint | Comment                                          |
@@ -104,12 +103,11 @@ sig-bytes = 64(OCTET)
 ### Example: ES512
 
 ``` abnf
-es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info sig-bytes
+es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info
 
 es512-varsig-header = %x1202 ; P-521 multicodec prefix
 es512-hash-algorithm = %x13 ; SHA2-512
 encoding-info = 1*unsigned-varint
-sig-bytes = 128(OCTET)
 ```
 
 | Segment                | Hexadecimal | Unsigned Varint | Comment                      | 

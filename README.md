@@ -23,7 +23,7 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 # Abstract
 
-Varsig is a [multiformat][Multiformats] for compactly describing signatures over data and any codec information to serialize the signed data correctly.
+Varsig is a [multiformat][Multiformats] for compactly describing signatures over data and any codec information to serialize the signed data correctly. It is only a description of the signature configuration, but not the signature itself.
 
 # Introduction
 
