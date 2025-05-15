@@ -205,7 +205,7 @@ Varsig itself MUST contain the following sgments:
 * [Signature Algorithm]: A signature algorithm tag and any additional fields needed to configure it
 * [Payload Encoding]: The codec used to render the payload to binary
 
-A Varsig header MUST begin with one or more Varsig segments that configure the signature.
+A Varsig MUST begin with one or more segments that configure the signature.
 
 ``` mermaid
 block-beta
