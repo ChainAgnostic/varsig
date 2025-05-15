@@ -337,7 +337,7 @@ block-beta
     style jwt width:350;
 ```
 
-## Varsig Multicodec Prefix
+## Prefix
 
 The Varsig prefix MUST be the [multicodec] value `0x34`.
 
