@@ -19,13 +19,11 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ## Dependencies
 
-* [IPLD]
-* [Multibase]
 * [Multicodec]
 
 # Abstract
 
-Varsig is a [multiformat][Multiformats] for compactly describing signatures over data and any codec information to serailiaze the signed data correctly.
+Varsig is a [multiformat][Multiformats] for compactly describing signatures over data and any codec information to serialize the signed data correctly.
 
 # Introduction
 
@@ -207,13 +205,6 @@ Varsig itself MUST contain the following sgments:
 * [Signature Algorithm]: A signature algorithm tag and any additional fields needed to configure it
 * [Payload Encoding]: The codec used to render the payload to binary
 
-
-
-FIXME
-Signing over the header is RECOMMENDED to avoid <classes of attack>
-
-
-
 A Varsig header MUST begin with one or more Varsig segments that configure the signature.
 
 ``` mermaid
@@ -366,12 +357,12 @@ A Varsig v1 MUST include the version prefix `0x01`.
 The signature algorithm field MUST consist of one or more unsigned varint segments. The signature algorithm is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. The first segment MUST act as a discriminant for how many expected segments follow in the signature algorithm field.
 
 
-| Prefix   | Segments                                 | Description                        |
-|----------|------------------------------------------|------------------------------------|
-| `0xB1`   | `bls-public-key-curve` `multihash`       | BLS12_381 (public key on G1 or G2) |
-| `0xEC`   | `ecdsa-curve` `recovery-bit` `multihash` | ECDSA (e.g. ES256)                 |
-| `0xED`   | `eddsa-curve` `multihash`                | EdDSA (e.g. Ed25519, Ed448)        |
-| `0x1205` | `rsa-byte-length` `multihash`            | RSASSA-PKCS #1 v1.5                |
+| Prefix   | LEB-128 Varint | Segments                                 | Description                        |
+|----------|----------------|------------------------------------------|------------------------------------|
+| `0xB1`   | `0xB101`       | `bls-public-key-curve` `multihash`       | BLS12_381 (public key on G1 or G2) |
+| `0xEC`   | `0xEC01`       | `ecdsa-curve` `recovery-bit` `multihash` | ECDSA (e.g. ES256)                 |
+| `0xED`   | `0xED01`       | `eddsa-curve` `multihash`                | EdDSA (e.g. Ed25519, Ed448)        |
+| `0x1205` | `0x8524`       | `rsa-byte-length` `multihash`            | RSASSA-PKCS #1 v1.5                |
 
 <details>
 
@@ -390,14 +381,14 @@ varsig-signature-algorithm
 
 ### Payload Encoding Metadata
 
-The [IPLD] data model is encoding agnostic by design. This is very convenient in many applications, such as making for very convenient conversions between types for transmission versus encoding. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
+Canonical encodings are convenient in many applications since they allow for efficient storage, compact internal representations, or the conversion between formats like JSON and CBOR. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
 
-| Code     | Description                         |
-|----------|-------------------------------------|
-| `0x5F`   | Byte-identical payload (no encoder) |
-| `0x70`   | DAG-PB IPLD codec                   |
-| `0x71`   | DAG-CBOR IPLD codec                 |
-| `0xE191` | EIP-191 "personal sign"             |
+| Code     | LEB-128 Varint | Description                                     |
+|----------|----------------|-------------------------------------------------|
+| `0x71`   | `0x71`         | [DAG-CBOR]                                      |
+| `0x5F`   | `0x5F`         | Byte-identical payload (no additional encoding) |
+| `0x0129` | `0xa902`       | [DAG-JSON]                                      |
+| `0xE191` | `0x91c303`     | EIP-191 "personal sign"                         |
 
 <details>
 
@@ -405,14 +396,21 @@ The [IPLD] data model is encoding agnostic by design. This is very convenient in
 
 ``` abnf
 varsig-encoding-metadata
-  = %x5F                        ; Single verbatim payload (without key)
-  / %x70                        ; DAG-PB multicodec prefix
-  / %x71                        ; DAG-CBOR multicodec prefix
+  = %x71                        ; DAG-CBOR multicodec prefix
+  / %x5F                        ; Byte-identical payload (no additional encoding)
   / %x0129                      ; DAG-JSON multicodec prefix
   / %xE191 varsig-encoding-info ; EIP-191 "personal sign"
 ```
 
 </details>
+
+# Signing Over Varsig
+
+Signing over the Varsig itself (in addition to the payload) is RECOMMENDED. This prevents a few classes of attack, including 
+
+
+FIXME
+Signing over the header is RECOMMENDED to avoid <classes of attack>
 
 # Acknowledgments
 
