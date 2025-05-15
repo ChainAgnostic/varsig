@@ -79,7 +79,7 @@ es256-hash-algorithm = %x12 ; SHA2-256
 | Segment                | Hexadecimal    | Unsigned Varint | Comment                                          |
 |------------------------|----------------|-----------------|--------------------------------------------------|
 | `ecdsa-prefix`         | `0xEC`         | `0xEC01`        | ECDSA                                            |
-| `es256-prefix`         | `0x1200`       | `0x8024`        | P-256 [multicodec] prefix                        |
+| `ecdsa-curve`         | `0x1200`       | `0x8024`        | P-256 [multicodec] prefix                        |
 | `ecdsa-partity-bit`    | `0x00 \| 0x01` | `0x00 \| 0x01`  | Spec-compliant ES256 does not use the parity bit |
 | `es256-hash-algorithm` | `0x12`         | `0x12`          | SHA2-256 [multicodec] prefix                     |
 
