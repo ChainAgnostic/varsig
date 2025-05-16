@@ -198,7 +198,7 @@ As it is critical for guarding against various attacks, the assumptions around c
 
 A Varsig MUST have metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
 
-Varsig itself MUST contain the following sgments:
+Varsig itself MUST contain the following segments:
 
 * [Prefix]: The Varsig [multicodec] prefix `0x34`
 * [Version]: The Varsig version number `0x01`

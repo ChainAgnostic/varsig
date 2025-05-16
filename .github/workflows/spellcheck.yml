@@ -15,4 +15,4 @@ jobs:
             CONTRIBUTING.md
             Community_Specification_License-v1.md
             Notices.md
-          words-to-ignore-file: ./.github/workflows/words-to-ignore.txt
+          words-to-ignore-file: ./.github/workflows/dictionary.txt
