@@ -349,12 +349,12 @@ A Varsig v1 MUST use the `0x01` version tag.
 
 The signature algorithm field MUST consist of one or more unsigned varint ([LEB128]) segments. The first segment MUST act as a discriminant for the signature algorithm plus the number and type of the fields used to configure that signature type.
 
-| Prefix   | [LEB128] Varint | Segments                                 | Description                        |
-|----------|-----------------|------------------------------------------|------------------------------------|
-| `0xB1`   | `0xB101`        | `bls-public-key-curve` `multihash`       | BLS12_381 (public key on G1 or G2) |
-| `0xEC`   | `0xEC01`        | `ecdsa-curve` `recovery-bit` `multihash` | ECDSA (e.g. ES256)                 |
-| `0xED`   | `0xED01`        | `eddsa-curve` `multihash`                | EdDSA (e.g. Ed25519, Ed448)        |
-| `0x1205` | `0x8524`        | `rsa-byte-length` `multihash`            | RSASSA-PKCS #1 v1.5                |
+| Prefix   | [LEB128] Varint | Segments                           | Description                        |
+|----------|-----------------|------------------------------------|------------------------------------|
+| `0xB1`   | `0xB101`        | `bls-public-key-curve` `multihash` | BLS12_381 (public key on G1 or G2) |
+| `0xEC`   | `0xEC01`        | `ecdsa-curve` `multihash`          | ECDSA (e.g. ES256)                 |
+| `0xED`   | `0xED01`        | `eddsa-curve` `multihash`          | EdDSA (e.g. Ed25519, Ed448)        |
+| `0x1205` | `0x8524`        | `rsa-byte-length` `multihash`      | RSASSA-PKCS #1 v1.5                |
 
 <details>
 
@@ -362,10 +362,10 @@ The signature algorithm field MUST consist of one or more unsigned varint ([LEB1
 
 ``` abnf
 varsig-signature-algorithm
-  = %xB1   bls-public-key-curve        multihash-header ; BLS
-  / %xEC   ecdsa-curve recovery-parity multihash-header ; ECDSA
-  / %xED   eddsa-curve                 multihash-header ; EdDSA
-  / %x1205 rsa-size                    multihash-header ; RSASSA-PKCS #1 v1.5
+  = %xB1   bls-public-key-curve multihash-header ; BLS
+  / %xEC   ecdsa-curve          multihash-header ; ECDSA
+  / %xED   eddsa-curve          multihash-header ; EdDSA
+  / %x1205 rsa-size             multihash-header ; RSASSA-PKCS #1 v1.5
 ```
 
 </details>
