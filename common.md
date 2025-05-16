@@ -72,7 +72,6 @@ Here are a few examples encoded as varsig:
 ``` abnf
 es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info
 es256-key = %x1200 ; P-256 multicodec prefix
-ecdsa-party-bit = %x00 / %x01
 es256-hash-algorithm = %x12 ; SHA2-256
 ```
 
@@ -80,7 +79,6 @@ es256-hash-algorithm = %x12 ; SHA2-256
 |------------------------|----------------|-----------------|--------------------------------------------------|
 | `ecdsa-prefix`         | `0xEC`         | `0xEC01`        | ECDSA                                            |
 | `ecdsa-curve`         | `0x1200`       | `0x8024`        | P-256 [multicodec] prefix                        |
-| `ecdsa-parity-bit`    | `0x00 \| 0x01` | `0x00 \| 0x01`  | Spec-compliant ES256 does not use the parity bit |
 | `ecdsa-hash-algorithm` | `0x12`         | `0x12`          | SHA2-256 [multicodec] prefix                     |
 
 ### Example: ES256K
@@ -89,7 +87,6 @@ es256-hash-algorithm = %x12 ; SHA2-256
 es256k-varsig = ecdsa-prefix ecdsa-curve ecdsa-parity-bit ecdsa-hash-algorithm
 ecdsa-prefix = %xEC ; ECDSA
 ecdsa-curve = %xe7 ; secp256k1 multicodec prefix
-ecdsa-parity-bit = %x00 / %x01
 ecdsa-hash-algorithm = %x12 ; SHA2-256
 ```
 
@@ -97,7 +94,6 @@ ecdsa-hash-algorithm = %x12 ; SHA2-256
 |-------------------------|----------------|-----------------|--------------------------------------------------|
 | `ecdsa-prefix`          | `0xEC`         | `0xEC01`        | ECDSA                                            |
 | `es256k-varsig-header`  | `0xE7`         | `0xE701`        | secp256k1 [multicodec] prefix                    |
-| `ecdsa-partity-bit`     | `0x00 \| 0x01` | `0x00 \| 0x01`  | ES256 often (but not always) uses the parity bit |
 | `es256k-hash-algorithm` | `0x12`         | `0x12`          | SHA2-256 [multicodec] prefix                     |
 
 ### Example: ES512
