@@ -70,9 +70,10 @@ Here are a few examples encoded as varsig:
 ### Example: ES256
 
 ``` abnf
-es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info
-es256-key = %x1200 ; P-256 multicodec prefix
-es256-hash-algorithm = %x12 ; SHA2-256
+es256-varsig = ecdsa-prefix ecdsa-curve ecdsa-hash-algorithm
+ecdsa-prefix = %xEC
+ecdsa-curve = %x1200 ; P-256 multicodec prefix
+ecdsa-hash-algorithm = %x12 ; SHA2-256
 ```
 
 | Segment                | Hexadecimal    | Unsigned Varint | Comment                                          |
