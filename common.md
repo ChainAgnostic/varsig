@@ -25,7 +25,7 @@ rsa-key-byte-length = unsigned-varint
 
 | Segment              | Hexadecimal | Unsigned Varint | Comment                                 |
 |----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-key-prefix`     | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
+| `rsa-prefix`     | `0x1205`    | `0x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
 | `rsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix            |
 | `rsa-key-length`     | `varint`    | `varint`        | Length of public key in bytes           |
 
