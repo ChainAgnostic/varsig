@@ -93,7 +93,7 @@ ecdsa-hash-algorithm = %x12 ; SHA2-256
 | Segment                 | Hexadecimal    | Unsigned Varint | Comment                                          |
 |-------------------------|----------------|-----------------|--------------------------------------------------|
 | `ecdsa-prefix`          | `0xEC`         | `0xEC01`        | ECDSA                                            |
-| `es256k-varsig-header`  | `0xE7`         | `0xE701`        | secp256k1 [multicodec] prefix                    |
+| `ecdsa-curve`  | `0xE7`         | `0xE701`        | secp256k1 [multicodec] prefix                    |
 | `ecdsa-hash-algorithm` | `0x12`         | `0x12`          | SHA2-256 [multicodec] prefix                     |
 
 ### Example: ES512
