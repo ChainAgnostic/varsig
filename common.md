@@ -109,8 +109,8 @@ encoding-info = 1*unsigned-varint
 | Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
 |------------------------|-------------|-----------------|------------------------------|
 | `ecdsa-prefix`         | `0xEC`      | `0xEC01`        | ECDSA                        |
-| `es512-varsig-header`  | `0x1202`    | `0x8224`        | P-521 [multicodec] prefix    |
-| `es512-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix |
+| `ecdsa-curve`          | `0x1202`    | `0x8224`        | P-521 [multicodec] prefix    |
+| `ecdsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix |
 
 <!-- Internal Links -->
 
