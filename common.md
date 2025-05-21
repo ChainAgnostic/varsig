@@ -84,7 +84,7 @@ es256-hash-algorithm = %x12 ; SHA2-256
 ### Example: ES256K
 
 ``` abnf
-es256k-varsig = ecdsa-prefix ecdsa-curve ecdsa-parity-bit ecdsa-hash-algorithm
+es256k-varsig = ecdsa-prefix ecdsa-curve ecdsa-hash-algorithm
 ecdsa-prefix = %xEC ; ECDSA
 ecdsa-curve = %xe7 ; secp256k1 multicodec prefix
 ecdsa-hash-algorithm = %x12 ; SHA2-256
