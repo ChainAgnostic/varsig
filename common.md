@@ -99,11 +99,10 @@ ecdsa-hash-algorithm = %x12 ; SHA2-256
 ### Example: ES512
 
 ``` abnf
-es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info
-
-es512-varsig-header = %x1202 ; P-521 multicodec prefix
-es512-hash-algorithm = %x13 ; SHA2-512
-encoding-info = 1*unsigned-varint
+es512-varsig = ecdsa-prefix ecdsa-curve ecdsa-hash-algorithm
+ecdsa-prefix = %xEC ; ECDSA
+ecdsa-curve = %x1202 ; P-521 multicodec prefix
+ecdsa-hash-algorithm = %x13 ; SHA2-512
 ```
 
 | Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
