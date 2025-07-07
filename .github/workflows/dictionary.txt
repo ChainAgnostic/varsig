@@ -8,6 +8,7 @@ CANs
 CASA
 CBOR
 CIDs
+COSE
 CTF
 Canonicalization
 Canonicalized
@@ -29,6 +30,7 @@ IPLD-enabled
 Implementers
 Irakli
 JSON
+JWS
 JWT
 JWT-encoded
 JWTs
@@ -59,6 +61,7 @@ Ukustov
 Validators
 Varints
 Wasm
+WebCrypto
 Zelenka
 auth
 backend
