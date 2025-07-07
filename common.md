@@ -56,7 +56,9 @@ eddsa-hash-algorithm = unsigned-varint
 
 ## ECDSA
 
-ECDSA defines a general mechanism over many elliptic curves. 
+ECDSA defines a general mechanism over many elliptic curves. The ECDSA spec itself does not define a serialization. Unless otherwise specified, the raw[^raw] encoding MUST be used: take the two integers of known length ($r$ and $s$, length depends on the curve) and directly concatenate them ($r \| s$).
+
+[^raw]: Raw encoding is preferred by the WebCrypto API, JWS, compact JWT, FIDO2, COSE, and so on. 
 
 ``` abnf
 ecdsa-varsig = ecdsa-prefix ecdsa-curve ecdsa-hash-algorithm
