@@ -43,7 +43,7 @@ eddsa-hash-algorithm = unsigned-varint
 | Segment                | Hexadecimal | Unsigned Varint | Comment                          |
 |------------------------|-------------|-----------------|----------------------------------|
 | `eddsa-prefix`         | `0xED`      | `0xED01`        | EdDSA prefix                     |
-| `eddsa-curve`          | `0xEC`      | `0xEC01`        | edwards25519 [multicodec] prefix |
+| `eddsa-curve`          | `0xED`      | `0xED01`        | edwards25519 [multicodec] prefix |
 | `eddsa-hash-algorithm` | `0x13`      | `0x13`          | SHA2-512 [multicodec] prefix     |
 
 ### Example: Ed448
