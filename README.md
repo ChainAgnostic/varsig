@@ -134,7 +134,7 @@ Decoded to a string, the above reads as follows:
 > [!NOTE]
 > The JSON above contains a duplicate `role` key.
 
-Next, the application parses the JSON with the browser's native JSON parser. Only one `role` key is possible in a JavaScript object, and which one is kept is not consistency across implementations.
+Next, the application parses the JSON with the browser's native JSON parser. Only one `role` key is possible in a JavaScript object, and which one is kept is not consistent across implementations.
 
 ``` json
 {
@@ -225,7 +225,7 @@ block-beta
 <summary>ABNF</summary>
 
 ```abnf
-varsig-header = %x34 signature-algorithm-metadata payload-encoding-metadata
+varsig-v1-header = %x34 %x01 signature-algorithm-metadata payload-encoding-metadata
 signature-algorithm-metadata = unsigned-varint
 payload-encoding-metadata = unsigned-varint
 ```
@@ -256,8 +256,8 @@ block-beta
     
         block:AlgoBody
             rsa["RSA\n0x1205"]
-            len["256-bytes\n0x0100"]
             sha2_256["SHA2-256\n0x12"]
+            len["256-bytes\n0x0100"]
         end
     end
     
