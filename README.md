@@ -1,43 +1,46 @@
-# Varsig Specification v0.1.0
+# Varsig Specification v1.0.0
 
 ## Editors
 
-* [Irakli Gozalishvili](https://github.com/Gozala), [DAG House](https://dag.house/)
-* [Brooklyn Zelenka](https://github.com/expede/), [Fission](https://fission.codes/)
+* [Brooklyn Zelenka]
+* [Irakli Gozalishvili]
 
 ## Authors
 
-* [Irakli Gozalishvili](https://github.com/Gozala), [DAG House](https://dag.house/)
-* [Joel Thorstensson](https://github.com/oed), [3Box Labs](https://3boxlabs.com/)
-* [Quinn Wilton](https://github.com/QuinnWilton/), [Fission](https://fission.codes/)
-* [Brooklyn Zelenka](https://github.com/expede/), [Fission](https://fission.codes/)
+* [Brooklyn Zelenka]
+* [Hugo Dias]
+* [Irakli Gozalishvili]
+* [Joel Thorstensson]
+* [Quinn Wilton]
 
 ## Language
 
-The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [RFC 2119].
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be interpreted as described in [BCP 14] when, and only when, they appear in all capitals, as shown here.
 
 ## Dependencies
 
-* [IPLD]
-* [Multibase]
 * [Multicodec]
 
-# 0 Abstract
+# Abstract
 
-Varsig is a [multiformat][Multiformats] for describing signatures over IPLD data and raw bytes in a way that preserves information about the payload and canonicalization information.
+Varsig is a [multiformat][Multiformats] for compactly describing signatures over data and any codec information to serialize the signed data correctly. It is only a description of the signature configuration, but not the signature itself.
 
-# 1 Introduction
+# Introduction
 
-[IPLD] is a deterministic encoding scheme for data expressed in [common types][IPLD Data Model] plus content addressed links. 
-
-Common formats such as JWT use encoding (e.g. base64) and text separators (e.g. `"."`) to pass around encoded data and their signatures:
+Common formats such as [JWT][RFC 7519] use encoding (e.g. [base64]) and text separators (e.g. `"."`) to pass around encoded data and their signatures:
 
 ``` js
 // JWT
-"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsInVjdiI6IjAuOC4xIn0.eyJhdWQiOiJkaWQ6a2V5Ono2TWtyNWFlZmluMUR6akc3TUJKM25zRkNzbnZIS0V2VGIyQzRZQUp3Ynh0MWpGUyIsImF0dCI6W3sid2l0aCI6eyJzY2hlbWUiOiJ3bmZzIiwiaGllclBhcnQiOiIvL2RlbW91c2VyLmZpc3Npb24ubmFtZS9wdWJsaWMvcGhvdG9zLyJ9LCJjYW4iOnsibmFtZXNwYWNlIjoid25mcyIsInNlZ21lbnRzIjpbIk9WRVJXUklURSJdfX1dLCJleHAiOjkyNTY5Mzk1MDUsImlzcyI6ImRpZDprZXk6ejZNa2tXb3E2UzN0cVJXcWtSbnlNZFhmcnM1NDlFZnU2cUN1NHVqRGZNY2pGUEpSIiwicHJmIjpbXX0.SjKaHG_2Ce0pjuNF5OD-b6joN1SIJMpjKjjl4JE61_upOrtvKoDQSxZ7WeYVAIATDl8EmcOKj9OqOSw0Vg8VCA"
+"eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCIsInVjdiI6IjAuOC4xIn0.eyJhdWQiOiJkaWQ6a2V5Ono
+2TWtyNWFlZmluMUR6akc3TUJKM25zRkNzbnZIS0V2VGIyQzRZQUp3Ynh0MWpGUyIsImF0dCI6W3sid2l
+0aCI6eyJzY2hlbWUiOiJ3bmZzIiwiaGllclBhcnQiOiIvL2RlbW91c2VyLmZpc3Npb24ubmFtZS9wdWJ
+saWMvcGhvdG9zLyJ9LCJjYW4iOnsibmFtZXNwYWNlIjoid25mcyIsInNlZ21lbnRzIjpbIk9WRVJXUkl
+URSJdfX1dLCJleHAiOjkyNTY5Mzk1MDUsImlzcyI6ImRpZDprZXk6ejZNa2tXb3E2UzN0cVJXcWtSbnl
+NZFhmcnM1NDlFZnU2cUN1NHVqRGZNY2pGUEpSIiwicHJmIjpbXX0.SjKaHG_2Ce0pjuNF5OD-b6joN1S
+IJMpjKjjl4JE61_upOrtvKoDQSxZ7WeYVAIATDl8EmcOKj9OqOSw0Vg8VCA"
 ```
 
-Many binary-as-text encodings are inefficient and inconvenient. Others have opted to use canonicalization and a tag. This can be effective, but requires careful handling and signalling of the specific canonicalization method used.
+Many binary-as-text encodings are inefficient and inconvenient. Others have opted to use canonicalization and a tag. This can be effective, but requires careful handling and signaling of the specific canonicalization method used (such as [DAG-CBOR]).
 
 ``` js
 const payload = canonicalize({"hello": "world", "count": 42})
@@ -46,17 +49,17 @@ const payload = canonicalize({"hello": "world", "count": 42})
 
 Directly signing over canonicalized data introduces new problems: forced encoding and canonicalization attacks.
 
-## 1.1 Forced Encoding
+## Forced Encoding
 
-Data must first be rendered to binary before it is signed. This means imposing an encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a CID. In IPFS, CIDs imply a link, which can have implications for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed by the cryptographic signature library.
+Data must first be rendered to binary before signing. This means imposing some encoding. There is no standard way to include the encoding that some IPLD was encoded with other than a [CID]. In IPFS, CIDs imply a link, which can have implications for network access and storage. Further, generating a CID means producing a hash, which is then potentially rehashed to conform to the cryptographic signature algorithm. 
 
-To remedy this, varsig includes the encoding information used in production of the signature.
+To remedy this, Varsig includes the encoding information used in production of the signature.
 
-## 1.2 Canonicalization Attacks
+## Canonicalization Attacks
 
-Since IPLD is deterministically encoded, it can be tempting to rely on canonicalization at validation time, rather than rendering the IPLD to inline bytes or a CID and signing that. Since the original payload can be rederived from the output, this seems like a clean option:
+Since formats like [IPLD] and [JCS] are deterministically encoded, it can be tempting to rely on canonicalization at validation time, rather than storing the serialized bytes. Since the original payload can be rederived from the output, this can seem like a clean option:
 
-``` js
+``` javascript
 // DAG-JSON
 {
   "role": "user",
@@ -69,11 +72,11 @@ Since IPLD is deterministically encoded, it can be tempting to rely on canonical
 }
 ```
 
-This opens the potential for [canonicalization attacks]. Parsers for certain formats — such as JSON — are known to handle duplicate entries differently. IPLD needs to be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
+Unfortunately this opens the potential for [canonicalization attacks]. [Parsers for certain formats][Taxonomy of Attacks] — such as JSON — are known to [handle duplicate entries differently][How (not) to sign a JSON object]. IPLD MUST be serialized to a canonical form before checking the signature. Without careful handling, it is possible to fail to check if any additional fields have been added to the payload which will be parsed by the application. 
 
 > An object whose names are all unique is interoperable in the sense that all software implementations receiving that object will agree on the name-value mappings.  When the names within an object are not unique, the behavior of software that receives such an object is unpredictable.  Many implementations report the last name/value pair only.  Other implementations report an error or fail to parse the object, and some implementations report all of the name/value pairs, including duplicates.
 >
-> — [RFC8259]
+> — [RFC 8259]
 
 ``` json
 {
@@ -88,329 +91,366 @@ This opens the potential for [canonicalization attacks]. Parsers for certain for
 }
 ```
 
-In the above example, the canonicalization step MAY lead to the signature validating, but the client parsing the `role: "admin"` field instead.
+In the above example, the canonicalization step MAY lead to the signature passing validation, but the client parsing the `role: "admin"` field instead.
 
-## 1.2.1 Example
+### Example
 
-The above can be [quite subtle][PKI Layer Cake]. Here is a step by step example of one such scenario.
+The above can be [subtle][PKI Layer Cake]. Here is a step by step example of one such scenario.
 
-An application receives some block of data, as binary. It checks the claimed CID, which validates.
+An application receives some block of data, as binary. It checks the claimed CID, which passes validation.
 
 ```
-%x7ba202022726f6c65223a202275736572222ca202022726f6c65223a202261646d696e222ca2020226c696e6b73223a205ba202020207b222f223a20226261666b72656964623271336b7467746c6d3579696f3762756a337379707967686a7466683565726e737465716d616b66347032633562776d7969227d2c20202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020207b222f223a20226261666b72656963373579646735766b773332346f716b636d716c74667663336b6976796e67716b69626a6f7973647769696c616b68347a356665227d2ca202020207b222f223a20226261666b726569666664697a3672616634367a727233623275737566677a35666f34346167676d6f637a347a61707072366b6868686c6a63647079227da20205d2ca202022736967223a2022387566615339773343474e386362515455536f4c31693765614b69574c53587344324c625a566d764d397a4622a7d
+0x7ba202022726f6c65223a202275736572222ca202022726f6c65223a202261646d696e222ca202
+0226c696e6b73223a205ba202020207b222f223a20226261666b72656964623271336b7467746c6d
+3579696f3762756a337379707967686a7466683565726e737465716d616b66347032633562776d79
+69227d2c202020202020202020202020202020202020202020202020202020202020202020202020
+20202020202020202020202020202020202020202020202020202020202020202020202020202020
+20202020202020202020202020202020202020202020202020202020202020202020202020202020
+2020202020202020202020207b222f223a20226261666b72656963373579646735766b773332346f
+716b636d716c74667663336b6976796e67716b69626a6f7973647769696c616b68347a356665227d
+2ca202020207b222f223a20226261666b726569666664697a3672616634367a72723362327573756
+6677a35666f34346167676d6f637a347a61707072366b6868686c6a63647079227da20205d2ca202
+022736967223a2022387566615339773343474e386362515455536f4c31693765614b69574c53587
+344324c625a566d764d397a4622a7d
 ```
 
 Decoded to a string, the above reads as follows:
 
 ```
-"{\n
-  "role": "user",\n
-  "role": "admin",\n
-  "links": [\n
-    {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},\n
-    {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},\n
-    {"/": "bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"}\n
-  ],\n
+{\n
+  {\n
+    "role": "user",\n
+    "role": "admin",\n
+    "links": [\n
+      {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},\n
+      {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},\n
+      {"/": "bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"}\n
+    ],\n
+  },\n
   "sig": "8ufaS9w3CGN8cbQTUSoL1i7eaKiWLSXsD2LbZVmvM9zF"\n
-}"
+}
 ```
 
-Note that the JSON above contains a duplicate `role` key a `sig` field with a base64 signature.
+> [!NOTE]
+> The JSON above contains a duplicate `role` key.
 
-Next, the application parses the JSON with the browser's native JSON parser.
+Next, the application parses the JSON with the browser's native JSON parser. Only one `role` key is possible in a JavaScript object, and which one is kept is not consistent across implementations.
 
 ``` json
 {
-  "role": "admin", // Picked the second key
-  "links": [
-    {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},
-    {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},
-    {"/": "bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"}
-  ],
+  {
+    "role": "admin", // Picked the second key
+    "links": [
+      {"/": "bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"},
+      {"/": "bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"},
+      {"/": "bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"}
+    ]
+  },
   "sig": "8ufaS9w3CGN8cbQTUSoL1i7eaKiWLSXsD2LbZVmvM9zF"
 }
 ```
 
-The application MUST check the signature of all field minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal IPLD representation using Rust/Wasm.
+The application MUST check the signature of all fields minus the `sig` field. Under the assumption that the binary input was safe, and that canonicalization allows for the deterministic manipulation of the payload, the object is parsed to an internal representation.
 
-``` Rust
-Ipld::Assoc([
-    ("role", Ipld::String("user")),
-    (
-        "links",
-        Ipld::Array([
-            Ipld::Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
-            Ipld::Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
-            Ipld::Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
-        ]),
-    ),
-    (
-        "sig",
-        Ipld::Binary([
-            %xf2, %xe7, %xda, %x4b, %xdc, %x37, %x08, %x63, %x7c, %x71, %xb4, %x13, %x51, %x2a,
-            %x0b, %xd6, %x2e, %xde, %x68, %xa8, %x96, %x2d, %x25, %xec, %x0f, %x62, %xdb, %x65,
-            %x59, %xaf, %x33, %xdc, %xc5,
-        ]),
-    ),
-]);
+``` rust
+{
+  role: "user",
+  links: [
+    Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+    Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+    Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+  ],
+  sig: 0xf2e7da4bdc3708637c71b413512a0bd62ede68a8962d25ec0f62db6559af33dc
+}
 ```
 
-Note that the IPLD parser has dropped the `role: "admin"` key.
+> [!NOTE]
+> In our scenario, the parser has dropped the `role: "admin"` key. This is nondeterministic based on the specific implementation.
 
-The `"sig"` field is then removed, and the remaining fields serialized to binary;
+The `sig` field is then removed, and the remaining fields serialized to binary;
 
-``` Rust
-Ipld::DagJson::serialize(
-    Ipld::Assoc([
-        ("role", Ipld::String("user")),
-        (
-            "links",
-            Ipld::Array([
-                Ipld::Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
-                Ipld::Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
-                Ipld::Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
-            ]),
-        )
-    ])
-);
+``` rust
+serialize!({
+  role: "user",
+  links: [
+    Cid("bafkreidb2q3ktgtlm5yio7buj3sypyghjtfh5ernsteqmakf4p2c5bwmyi"),
+    Cid("bafkreic75ydg5vkw324oqkcmqltfvc3kivyngqkibjoysdwiilakh4z5fe"),
+    Cid("bafkreiffdiz6raf46zrr3b2usufgz5fo44aggmocz4zappr6khhhljcdpy"),
+  ]
+}).to_json()
 ```
 
 The signature is then checked against the above fields, which passes since there's only a `role: "user"` entry. The application then uses the original JSON with the `role: "admin"` entry.
 
-# 2 Safety
+# Safety
 
-Data that has already been parsed to an in-memory IPLD representation can be canonically encoded trivially: it has already been through a [parser / validator][Parse Don't Validate].
+Data already parsed to an in-memory representation can be canonically encoded trivially: it has already been through a [parser / validator][Parse Don't Validate].
 
-Data purporting to conform to an IPLD encoding (such as [DAG-JSON]) MUST be validated prior to signature verification. This MAY be as simple as round-trip decoding/encoding the JSON and checking that the hash matches. A validation error MUST be signalled if it does not match.
+Data purporting to conform to an IPLD encoding (such as [DAG-JSON]) MUST be validated prior to signature verification. This MAY be as simple as round-trip decoding/encoding the JSON and checking that the hash matches. A validation error MUST be signaled if it does not match.
 
-> [Implementers] may provide an opt-in for systems where round-trip determinism is a desireable [sic] feature and backward compatibility with old, non-strict data is unnecessary.
+> Implementers may provide an opt-in for systems where round-trip determinism is a desireable [sic] feature and backward compatibility with old, non-strict data is unnecessary.
 >
-> — [DAG-JSON Spec][DAG-JSON]
+> — [DAG-JSON Spec][DAG-JSON]
 
 As it is critical for guarding against various attacks, the assumptions around canonical encoding MUST be enforced.
 
-## 2.1 Signing CIDs
+# Format
 
-Rather than validating the inline IPLD, replacing the data with a CID link to the content MAY be used instead. Note while this is very safe (as it is impractical to alter a signed hash), this approach mixes data layout with security, and may have a performance, disk, and networking impacts.
+A Varsig MUST have metadata about both the [signature] and [payload encoding] that was signed over. Either field MAY be composed of one or more segments. The number of segments MUST be determined by the first segment. Recursive sub-segments MAY be used.
 
-### 2.1.1 Caching & Invalidation
+Varsig itself MUST contain the following segments:
 
-Signing CIDs has two additional caching consequences:
+* [Prefix]: The Varsig [multicodec] prefix `0x34`
+* [Version]: The Varsig version number `0x01`
+* [Signature Algorithm]: A signature algorithm tag and any additional fields needed to configure it
+* [Payload Encoding]: The codec used to render the payload to binary
 
-1. Signing CIDs enables a simple strategy for caching validation by CID.
-2. Such a strategy also MAY require accounting for revocation of the signing keys themselves. In this case, the cache would need to include additional information about the signing key.
+A Varsig MUST begin with one or more segments that configure the signature.
 
-## 2.2 Raw (Noncanonicalized) Data
+``` mermaid
+block-beta
+    columns 4
 
-Canonicalization is not required if data is encoded as raw bytes (multicodec `%x55`). The exact bytes are already present, and MUST not be changed.
+    Varsig:4
+    prefix["Varsig Prefix\n0x34"]
+    version["Version 1\n0x01"]                
+    SigDetails["Signature Algorithm"]
+    Encoding["Payload Encoding"]
 
-# 3 Varsig Format
+    style Varsig fill:none;stroke:none;
+```
 
-After being decoded from [unsigned varint]s, a varsig includes the following segments:
+<details>
+
+<summary>ABNF</summary>
 
 ```abnf
-varsig = multibase-prefix %x34 varsig-header varsig-body
-multibase-prefix = ALPHA ; Multibase
-varsig-header = unsigned-varint ; Usually the public key code from Multicodec
-varsig-body = *OCTET; Zero or more segments required by the kind of varsig (e.g. raw bytes, hash algorithm, etc)
+varsig-v1-header = %x34 %x01 signature-algorithm-metadata payload-encoding-metadata
+signature-algorithm-metadata = unsigned-varint
+payload-encoding-metadata = unsigned-varint
 ```
 
-For example, here is an EdDSA signature for some content encoded as DAG-PB:
+</details>
 
-`%x34ed01ae3784f03f9ee1163382fa6efa73b0c31ecf58c899c836709303ba4621d1e6df20e09aaa568914290b7ea124f5b38e70b9b69c7de0d216880eac885edd41c302`
+For example, an [RS256] signature over some [DAG-CBOR] is as follows:
+ 
+```mermaid
+block-beta
+    block:Header
+        columns 1
+    
+        vsig_header["Header"]
+    
+        block:HeaderBody
+            columns 2
+    
+            prefix["Varsig Prefix\n0x34"]
+            version["Version 1\n0x01"]
+        end
+    end
+    
+    block:Algo
+        columns 1
+    
+        algo_header["Algorithm"]
+    
+        block:AlgoBody
+            rsa["RSA\n0x1205"]
+            sha2_256["SHA2-256\n0x12"]
+            len["256-bytes\n0x0100"]
+        end
+    end
+    
+    block:Encoding
+        columns 1
+    
+        encoding_header["Payload Encoding"]
+    
+        block:EncodingBody
+            dag_cbor["DAG-CBOR\n0x71"]
+        end
+    end
+    
+    style Header fill:none;stroke:none;
+    style vsig_header fill:none;stroke:none;
+    
+    style Algo fill:none;stroke:none;
+    style algo_header fill:none;stroke:none;
+    
+    style Encoding fill:none;stroke:none;
+    style encoding_header fill:none;stroke:none;
+    
+    style prefix width:120;
+    style dag_cbor width:250;
+```
 
-### 3.1 Varsig Prefix
+A (canonicalized) [JWT] signed with [ES256K] is as follows:
 
-The varsig prefix MUST be `%x34`.
+```mermaid
+block-beta
+    block:Header
+        columns 1
+    
+        vsig_header["Header"]
+    
+        block:HeaderBody
+            columns 2
+    
+            prefix["Varsig Prefix\n0x34"]
+            version["Version 1\n0x01"]
+        end
+    end
+    
+    block:Algo
+        columns 1
+    
+        algo_header["Algorithm"]
+    
+        block:AlgoBody
+            ecdsa["ECDSA\n0xEC"]
+            curve["secp256r1\n0x1200"]
+            sha2_256["Keccak-256\n0x1B"]
+        end
+    end
+    
+    block:Encoding
+        columns 1
+    
+        encoding_header["Payload Encoding"]
+    
+        block:EncodingBody
+            jwt["JWT\n0x6A77"]
+        end
+    end
+    
+    style Header fill:none;stroke:none;
+    style vsig_header fill:none;stroke:none;
+    
+    style Algo fill:none;stroke:none;
+    style algo_header fill:none;stroke:none;
+    
+    style Encoding fill:none;stroke:none;
+    style encoding_header fill:none;stroke:none;
+    
+    style prefix width:170;
+    style ecdsa width:110;
+    style jwt width:350;
+```
 
-### 3.2 Signature Header
+## Prefix
 
-The prefix of the signature algorithm. This is often the [multicodec] of the associated public key, but MAY be unique for the signature type. The code MAY live outside the multicodec table. This field MUST act as a discriminant for how many expected fields come in the varsig body, and what each of them mean.
+The Varsig prefix MUST be the [multicodec] value `0x34`.
 
-### 3.3 Varsig Body
+## Version
 
-The varsig body MUST consist of one or more segments, and MUST be defined by the signature algorithm.
+A Varsig v1 MUST use the `0x01` version tag.
 
-Some examples include:
+## Signature Algorithm
 
-* Raw signature bytes only
-* CID of [DKIM] certification transparency record, and raw signature bytes
-* Hash algorithm multicodec prefix, data encoding prefix, signature counter, nonce, HMAC, and raw signature bytes
+The signature algorithm field MUST consist of one or more unsigned varint ([LEB128]) segments. The first segment MUST act as a discriminant for the signature algorithm plus the number and type of the fields used to configure that signature type.
 
-# 4 Payload Encoding
+| Prefix   | [LEB128] Varint | Segments                           | Description                        |
+|----------|-----------------|------------------------------------|------------------------------------|
+| `0xB1`   | `0xB101`        | `bls-public-key-curve` `multihash` | BLS12_381 (public key on G1 or G2) |
+| `0xEC`   | `0xEC01`        | `ecdsa-curve` `multihash`          | ECDSA (e.g. ES256)                 |
+| `0xED`   | `0xED01`        | `eddsa-curve` `multihash`          | EdDSA (e.g. Ed25519, Ed448)        |
+| `0x1205` | `0x8524`        | `rsa-byte-length` `multihash`      | RSASSA-PKCS #1 v1.5                |
 
-The [IPLD] data model is encoding agnostic by design. This is very convenient in many applications, such as making for very convenient conversions between types for transmission versus encoding. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data.
+<details>
 
-To facilitate this, the type `encoding-info` MAY be used:
+<summary>ABNF</summary>
 
 ``` abnf
-encoding-info
-  = %x5F   ; Single verbatim payload (without key)
-  / %x70   ; DAG-PB multicodec prefix
-  / %x71   ; DAG-CBOR multicodec prefix
-  / %x0129 ; DAG-JSON multicodec prefix
-  / %x6A77 ; JWT
-  / %xE191 encoding-info ; EIP-191
-  
-message-byte-length = unsigned-varint
+varsig-signature-algorithm
+  = %xB1   bls-public-key-curve multihash-header ; BLS
+  / %xEC   ecdsa-curve          multihash-header ; ECDSA
+  / %xED   eddsa-curve          multihash-header ; EdDSA
+  / %x1205 rsa-size             multihash-header ; RSASSA-PKCS #1 v1.5
 ```
 
-To manage this, it is RECOMMENDED that varsig types include a nested encoding multiformat. For example, here's a 2048-bit RS256 signature over some DAG-CBOR:
+</details>
+
+## Payload Encoding
+
+Canonical encodings are convenient for many applications since they allow for efficient storage, compact internal representations, or the conversion between formats like JSON and CBOR. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
+
+| Code     | [LEB128] Varint | Description                                     |
+|----------|-----------------|-------------------------------------------------|
+| `0x5F`   | `0x5F`          | Byte-identical payload (no additional encoding) |
+| `0x71`   | `0x71`          | [DAG-CBOR]                                      |
+| `0x0129` | `0xa902`        | [DAG-JSON]                                      |
+| `0xE191` | `0x91c303`      | [EIP-191 "personal sign"][EIP-191-ps]           |
+
+<details>
+
+<summary>ABNF</summary>
 
 ``` abnf
-;    RSA       256-bytes       sig-bytes
-;     |           |               |
-;     v           v               v
-%x34 %x1205 %x12 %x0100 %x71 256(OCTET)
-; ^          ^           ^
-; |          |           |
-;varsig   SHA-256     DAG-CBOR
+varsig-encoding-metadata
+  = %x5F                        ; Byte-identical payload (no additional encoding)
+  / %x71                        ; DAG-CBOR multicodec prefix
+  / %x0129                      ; DAG-JSON multicodec prefix
+  / %xE191 varsig-encoding-info ; EIP-191 "personal sign"
 ```
 
-And another showing data signed with [EIP-191]:
+</details>
 
-``` abnf
-; secp256k1  EIP-191
-;     |         |
-;     v         v
-%x34 %xE7 %x1B %xE191 64(OCTET)
-; ^        ^            ^
-; |        |            |
-;varsig keccak-256   sig-bytes
-```
+# Signing Over Varsig
 
-Note that in the above examples, more nested information MAY be nested inside the encoding info section, depending on the definition of the encoding info.
+Including the Varsig in the payload that is signed over is RECOMMENDED. Doing so eliminates any ambiguity of the signed payload format and signature algorithm configuration.
 
-# 5 Registry of Common Signature Algorithms
+# Acknowledgments
 
-Below are a few common signature headers and their fields.
+Thanks to [Michael Muré] for feedback from real-world implementation.
 
-## 5.1 RSA
+Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlier design.
 
-RSASSA-PKCS #1 v1.5 signatures MUST include the following segments:
+<!-- Internal Links -->
 
-``` abnf
-rsa-varsig = rsa-varsig-header rsa-hash-algorithm signature-byte-length encoding-info sig-bytes
+[Header]: #header
+[Payload Encoding]: #payload-encoding
+[Prefix]: #varsig-multicodec-prefix
+[Signature Algorithm]: #signature-algorithm
+[Signature]: #signature
+[Version]: #version
 
-rsa-varsig-header = %x1205 ; RSASSA-PKCS #1 v1.5
-rsa-hash-algorithm = unsigned-varint
-signature-byte-length = unsigned-varint
-encoding-info = 1*unsigned-varint ; Number of segments defined by the encoding header
-sig-bytes = *OCTET
-```
+<!-- External Links -->
 
-### 5.1.1 Example: RS256
-
-| Segment              | Hexadecimal | Unsigned Varint | Comment                                 | 
-|----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-varsig-header`  | `%x1205`    | `%x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
-| `rsa-hash-algorithm` | `%x12`      | `%x12`          | SHA2-256 [multicodec] prefix            |
-
-### 5.1.3 Example: RS512
-
-| Segment              | Hexadecimal | Unsigned Varint | Comment                                 | 
-|----------------------|-------------|-----------------|-----------------------------------------|
-| `rsa-varsig-header`  | `%x1205`    | `%x8524`        | RSASSA-PKCS #1 v1.5 [multicodec] prefix |
-| `rsa-hash-algorithm` | `%x13`      | `%x13`          | SHA2-512 [multicodec] prefix            |
-
-## 5.2 Ed25519
-
-``` abnf
-ed25519-varsig = ed25519-varsig-header encoding-info sig-bytes
-
-ed25519-varsig-header = %xED ; Ed25519 multicodec prefix
-encoding-info = 1*unsigned-varint
-sig-bytes = 64(OCTET)
-```
-
-| Segment                 | Hexadecimal | Unsigned Varint | Comment                         | 
-|-------------------------|-------------|-----------------|---------------------------------|
-| `ed25519-varsig-header` | `%xED`      | `%xED01`        | Ed25519 key [multicodec] prefix |
-
-## 5.3 ECDSA
-
-ECDSA defines a general mechanism over many elliptic curves. 
-
-``` abnf
-ecdsa-varsig = ecdsa-varsig-header ecdsa-hash-algorithm encoding-info sig-bytes
-
-ecdsa-varsig-header = unsigned-varint
-ecdsa-hash-algorithm = unsigned-varint
-encoding-info = 1*unsigned-varint
-sig-bytes = *OCTET
-```
-
-Here are a few examples encoded as varsig:
-
-### 5.3.1 Example: ES256
-
-``` abnf
-es256-varsig = es256-varsig-header es256-hash-algorithm encoding-info sig-bytes
-
-es256-varsig-header = %x1200 ; P-256 multicodec prefix
-es256-hash-algorithm = %x12 ; SHA2-256
-encoding-info = 1*unsigned-varint
-sig-bytes = 64(OCTET)
-```
-
-| Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
-|------------------------|-------------|-----------------|------------------------------|
-| `es256-varsig-header`  | `%x1200`    | `%x8024`        | P-256 [multicodec] prefix    |
-| `es256-hash-algorithm` | `%x12`      | `%x12`          | SHA2-256 [multicodec] prefix |
-
-### 5.3.2 Example: ES256K
-
-``` abnf
-es256k-varsig = es256k-varsig-header es256k-hash-algorithm encoding-info sig-bytes
-
-es256k-varsig-header = %xe7 ; secp256k1 multicodec prefix
-es256k-hash-algorithm = %x12 ; SHA2-256
-encoding-info = 1*unsigned-varint
-sig-bytes = 64(OCTET)
-```
-
-| Segment                 | Hexadecimal | Unsigned Varint | Comment                        | 
-|-------------------------|-------------|-----------------|--------------------------------|
-| `es256k-varsig-header`  | `%xE7`      | `%xE701`        | secp256k1 [multicodec] prefix  |
-| `es256k-hash-algorithm` | `%x12`      | `%x12`          | SHA2-256 [multicodec] prefix   |
-
-### 5.3.3 Example: ES512
-
-``` abnf
-es512-varsig = es512-varsig-header es512-hash-algorithm encoding-info sig-bytes
-
-es512-varsig-header = %x1202 ; P-521 multicodec prefix
-es512-hash-algorithm = %x13 ; SHA2-512
-encoding-info = 1*unsigned-varint
-sig-bytes = 132(OCTET)
-```
-
-| Segment                | Hexadecimal | Unsigned Varint | Comment                      | 
-|------------------------|-------------|-----------------|------------------------------|
-| `es512-varsig-header`  | `%x1202`    | `%x8224`        | P-521 [multicodec] prefix    |
-| `es512-hash-algorithm` | `%x13`      | `%x13`          | SHA2-512 [multicodec] prefix |
-
-# 6 Further Reading
-
-* [Canonicalization Attacks Against MACs and Signatures][canonicalization attacks]
-* [How (not) to sign a JSON object]
-* [A Taxonomy of Attacks against XML Digital Signatures & Encryption][Taxonomy of Attacks]
-* [PKI Layer Cake]
-
-[Taxonomy of Attacks]: https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
+[BCP 14]: https://www.rfc-editor.org/info/bcp14
+[Brooklyn Zelenka]: https://github.com/expede/
 [CAR]: https://ipld.io/specs/transport/car/
+[CID]: https://docs.ipfs.tech/concepts/content-addressing/
+[DAG-CBOR]: https://ipld.io/docs/codecs/known/dag-cbor/
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
 [DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
+[Dave Huseby]: https://github.com/dhuseby
+[EIP-191-ps]: https://eips.ethereum.org/EIPS/eip-191#version-0x45-e
 [EIP-191]: https://eips.ethereum.org/EIPS/eip-191
+[ES256K]: https://w3c-ccg.github.io/lds-ecdsa-secp256k1-2019/
+[EdDSA]: https://datatracker.ietf.org/doc/html/rfc8032
 [How (not) to sign a JSON object]: https://latacora.micro.blog/2019/07/24/how-not-to.html
+[Hugo Dias]: https://github.com/hugomrdias
 [IPLD Data Model]: https://ipld.io/docs/data-model/kinds/
 [IPLD]: https://ipld.io/docs/
+[Irakli Gozalishvili]: https://github.com/Gozala
+[JCS]: https://www.rfc-editor.org/rfc/rfc8785
+[JWT]: https://www.rfc-editor.org/rfc/rfc7519
+[Joel Thorstensson]: https://github.com/oed
+[LEB128]: https://en.wikipedia.org/wiki/LEB128
+[Michael Muré]: https://github.com/MichaelMure
 [Multicodec]: https://github.com/multiformats/multicodec
 [Multiformats]: https://multiformats.io
 [PKI Layer Cake]: https://link.springer.com/chapter/10.1007/978-3-642-14577-3_22
 [Parse Don't Validate]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
+[Quinn Wilton]: https://github.com/QuinnWilton/
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
-[RFC8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
+[RFC 7519]: https://www.rfc-editor.org/rfc/rfc7519
+[RFC 8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
+[RS256]: https://datatracker.ietf.org/doc/html/rfc7518
+[RSASSA-PKCS #1 v1.5]: https://www.rfc-editor.org/rfc/rfc2313
+[Taxonomy of Attacks]: https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
+[`secp256k1`]: https://en.bitcoin.it/wiki/Secp256k1
+[base64]: https://en.wikipedia.org/wiki/Base64
 [canonicalization attacks]: https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/
 [multibase]: https://github.com/multiformats/multibase
 [multicodec]: https://github.com/multiformats/multicodec

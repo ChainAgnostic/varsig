@@ -1,10 +1,14 @@
 Acknowledgements
-CAIPs
+BCP
+BLS
 CAIP
+CAIPs
 CAN
 CANs
 CASA
+CBOR
 CIDs
+COSE
 CTF
 Canonicalization
 Canonicalized
@@ -19,12 +23,14 @@ EdDSA
 Ethereum
 Gozalishvili
 HMAC
+Huseby
 IPFS
 IPLD
 IPLD-enabled
 Implementers
 Irakli
 JSON
+JWS
 JWT
 JWT-encoded
 JWTs
@@ -32,6 +38,7 @@ Krüger
 LEB
 MACs
 Multibase
+Muré
 Namespaces
 Noncanonicalized
 PKI
@@ -54,6 +61,7 @@ Ukustov
 Validators
 Varints
 Wasm
+WebCrypto
 Zelenka
 auth
 backend
@@ -69,6 +77,7 @@ cryptographic
 delimeters
 desireable
 dholms
+edwards
 encodings
 expede
 fn
@@ -80,6 +89,7 @@ multihash
 namespace
 namespaced
 oed
+pre
 pre-signature
 rederived
 requestor's
