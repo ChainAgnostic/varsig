@@ -1,4 +1,4 @@
-# Varsig Specification v1.0.0
+# Varsig Specification v1.0.1
 
 ## Editors
 
@@ -370,6 +370,8 @@ varsig-signature-algorithm
 
 </details>
 
+Signatures produced under any of these algorithms MUST be [canonical][Canonical Signatures].
+
 ## Payload Encoding
 
 Canonical encodings are convenient for many applications since they allow for efficient storage, compact internal representations, or the conversion between formats like JSON and CBOR. Unfortunately signatures require signing over specific bytes, and thus over a specific encoding of the data. To facilitate this, the type `varsig-encoding-metadata` MUST be used:
@@ -399,6 +401,59 @@ varsig-encoding-metadata
 
 Including the Varsig in the payload that is signed over is RECOMMENDED. Doing so eliminates any ambiguity of the signed payload format and signature algorithm configuration.
 
+# Canonical Signatures
+
+Some signature algorithms are malleable. Anyone who holds one valid signature can derive a different byte string that also verifies against the same public key and payload, without the private key. Systems often identify signed data by a hash that covers the signature bytes, such as the [CID] of a signed envelope, and use that identifier for deduplication, replay prevention, and revocation. A malleated signature gives the same signed statement a second identifier, and that second identifier can bypass all three checks.
+
+To give each signature a single valid encoding, signers MUST produce the canonical encoding defined below for each signature algorithm, and verifiers MUST accept only that encoding. A verifier MUST reject a non-canonical signature, even if it would otherwise verify.
+
+> [!NOTE]
+> Canonical encoding stops anyone without the private key from deriving a new valid signature from an existing one. It does not make the signature over a payload unique: the holder of the private key can always produce another valid signature, for example with a fresh nonce.
+
+## ECDSA
+
+An ECDSA signature MUST be encoded as the fixed-length concatenation `r || s`, as in [RFC 7518 §3.4][RFC 7518 ECDSA]. Each component is an unsigned big-endian integer, padded to the byte length of the curve order `n`. ASN.1 DER encoding MUST NOT be used.
+
+ECDSA signatures are malleable: if `(r, s)` is valid, so is `(r, n - s)`. The canonical signature is the low-S form, as in [BIP-146]:
+
+* `r` MUST be in the range `[1, n - 1]`
+* `s` MUST be in the range `[1, n / 2]`, where `/` is integer division
+
+If a signature has `s > n / 2`, the signer MUST replace `s` with `n - s` before use. A verifier MUST reject a signature with `s > n / 2`.
+
+The following table lists `n / 2` for common curves:
+
+| Curve       | `n / 2`                                                                                                                                  |
+|-------------|------------------------------------------------------------------------------------------------------------------------------------------|
+| `secp256k1` | `0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0`                                                                     |
+| P-256       | `0x7fffffff800000007fffffffffffffffde737d56d38bcf4279dce5617e3192a8`                                                                     |
+| P-384       | `0x7fffffffffffffffffffffffffffffffffffffffffffffffe3b1a6c0fa1b96efac0d06d9245853bd76760cb5666294b9`                                     |
+| P-521       | `0x00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffd28c343c1df97cb35bfe600a47b84d2e81ddae4dc44ce23d75db7db8f489c3204` |
+
+### Recoverable Signatures
+
+Signatures over [EIP-191] payloads carry a trailing recovery byte `v`. They MUST follow the rules above, and MUST be encoded as the 65 bytes `r || s || v`, where `v` is `0x1B` (27) or `0x1C` (28).
+
+Most wallets return `v` as 27 or 28, but some return 0 or 1. If a wallet returns `v` as 0 or 1, the signer MUST add 27 to it. If a wallet returns a signature with `s > n / 2`, the signer MUST replace `s` with `n - s` and swap `v` between 27 and 28.
+
+A verifier MUST reject a signature with `v` other than 27 or 28. This includes 0, 1, and the [EIP-155] values (`v >= 35`), which apply only to transactions.
+
+## EdDSA
+
+An EdDSA signature MUST be encoded as `R || S`, as defined in [RFC 8032][EdDSA]. Ed25519 signatures are 64 bytes, and Ed448 signatures are 114 bytes.
+
+A verifier MUST reject a signature whose integer `S` is greater than or equal to the group order `L`. [RFC 8032 §5.1.7][RFC 8032 Ed25519 Verify] and [§5.2.7][RFC 8032 Ed448 Verify] already require this check. Without it, `S + L` is a second valid signature.
+
+The challenge hash `H(R || A || M)` covers the encoded `R`. A different encoding of the same point `R` gives a different challenge, so the signature does not verify. Verifiers MAY therefore decode `R` with either the strict rules of [RFC 8032][EdDSA] or the relaxed rules of [ZIP-215], as long as they reject `S >= L`. The RFC 8032 rules are RECOMMENDED.
+
+## RSASSA-PKCS #1 v1.5
+
+[RSASSA-PKCS #1 v1.5][RFC 8017 §8.2] is deterministic. A signature MUST be encoded as an unsigned big-endian integer of exactly `k` bytes, where `k` is the byte length of the modulus `n`. A verifier MUST reject a signature that is not `k` bytes long, or whose integer value is greater than or equal to `n`.
+
+## BLS
+
+A BLS signature MUST use the compressed point encoding defined in [draft-irtf-cfrg-bls-signature][BLS Signatures]. A verifier MUST reject a signature that is not a canonical compressed encoding, such as one with incorrect flag bits or with a coordinate greater than or equal to the field modulus. A verifier MUST also reject a signature point that is not in the prime-order subgroup.
+
 # Acknowledgments
 
 Thanks to [Michael Muré] for feedback from real-world implementation.
@@ -407,6 +462,7 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 
 <!-- Internal Links -->
 
+[Canonical Signatures]: #canonical-signatures
 [Header]: #header
 [Payload Encoding]: #payload-encoding
 [Prefix]: #varsig-multicodec-prefix
@@ -417,6 +473,8 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 <!-- External Links -->
 
 [BCP 14]: https://www.rfc-editor.org/info/bcp14
+[BIP-146]: https://github.com/bitcoin/bips/blob/master/bip-0146.mediawiki#low_s
+[BLS Signatures]: https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-bls-signature-05
 [Brooklyn Zelenka]: https://github.com/expede/
 [CAR]: https://ipld.io/specs/transport/car/
 [CID]: https://docs.ipfs.tech/concepts/content-addressing/
@@ -424,6 +482,7 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [DAG-JSON]: https://ipld.io/specs/codecs/dag-json/spec/
 [DKIM]: https://en.wikipedia.org/wiki/DomainKeys_Identified_Mail
 [Dave Huseby]: https://github.com/dhuseby
+[EIP-155]: https://eips.ethereum.org/EIPS/eip-155
 [EIP-191-ps]: https://eips.ethereum.org/EIPS/eip-191#version-0x45-e
 [EIP-191]: https://eips.ethereum.org/EIPS/eip-191
 [ES256K]: https://w3c-ccg.github.io/lds-ecdsa-secp256k1-2019/
@@ -444,11 +503,16 @@ Our gratitude to [Dave Huseby] for his parallel work and critiques of our earlie
 [Parse Don't Validate]: https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/
 [Quinn Wilton]: https://github.com/QuinnWilton/
 [RFC 2119]: https://datatracker.ietf.org/doc/html/rfc2119
+[RFC 7518 ECDSA]: https://www.rfc-editor.org/rfc/rfc7518#section-3.4
 [RFC 7519]: https://www.rfc-editor.org/rfc/rfc7519
+[RFC 8017 §8.2]: https://www.rfc-editor.org/rfc/rfc8017#section-8.2
+[RFC 8032 Ed25519 Verify]: https://www.rfc-editor.org/rfc/rfc8032#section-5.1.7
+[RFC 8032 Ed448 Verify]: https://www.rfc-editor.org/rfc/rfc8032#section-5.2.7
 [RFC 8259]: https://www.rfc-editor.org/rfc/rfc8259#page-10
 [RS256]: https://datatracker.ietf.org/doc/html/rfc7518
 [RSASSA-PKCS #1 v1.5]: https://www.rfc-editor.org/rfc/rfc2313
 [Taxonomy of Attacks]: https://www.blackhat.com/presentations/bh-usa-07/Hill/Whitepaper/bh-usa-07-hill-WP.pdf
+[ZIP-215]: https://zips.z.cash/zip-0215
 [`secp256k1`]: https://en.bitcoin.it/wiki/Secp256k1
 [base64]: https://en.wikipedia.org/wiki/Base64
 [canonicalization attacks]: https://soatok.blog/2021/07/30/canonicalization-attacks-against-macs-and-signatures/

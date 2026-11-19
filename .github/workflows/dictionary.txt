@@ -1,3 +1,4 @@
+ASN
 Acknowledgements
 BCP
 BLS
@@ -15,6 +16,7 @@ Canonicalized
 DAG-CBOR
 DAG-JSON
 DAG-PB
+DER
 DIDs
 DKIM
 ECDSA
@@ -60,11 +62,13 @@ UTF
 Ukustov
 Validators
 Varints
+Verifiers
 Wasm
 WebCrypto
 Zelenka
 auth
 backend
+big-endian
 bip
 bytesprefix
 bytestring
@@ -74,15 +78,18 @@ canonicalized
 codec
 conformant
 cryptographic
+deduplication
 delimeters
 desireable
 dholms
+draft-irtf-cfrg-bls-signature
 edwards
 encodings
 expede
 fn
 inlined
 interpretable
+malleated
 multicodec
 multiformat
 multihash
@@ -105,4 +112,6 @@ validator
 validators
 varint
 varsig
+verifier
+verifiers
 whitespace
